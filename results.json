@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T04:35:51Z",
+  "updated": "2026-06-17T09:19:05Z",
   "results": [
     {
       "id": "k_B1",
@@ -93,6 +93,18 @@
       "ag": 0,
       "status": "FT",
       "clock": "90'+6'",
+      "period": 2,
+      "date": "2026-06-17",
+      "group": "J"
+    },
+    {
+      "id": "espn_760431",
+      "home": "Austria",
+      "away": "Jordan",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+14'",
       "period": 2,
       "date": "2026-06-17",
       "group": "J"
