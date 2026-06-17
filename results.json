@@ -1,11 +1,101 @@
 {
-  "updated": "2026-06-16T20:00:00Z",
+  "updated": "2026-06-17T04:35:51Z",
   "results": [
-    {"id":"k_B1","home":"Canada","away":"Bosnia","hg":1,"ag":1,"status":"FT","date":"2026-06-12","group":"B"},
-    {"id":"k_E1","home":"Germany","away":"Curacao","hg":7,"ag":1,"status":"FT","date":"2026-06-14","group":"E"},
-    {"id":"k_E2","home":"IvoryCoast","away":"Ecuador","hg":1,"ag":0,"status":"FT","date":"2026-06-14","group":"E"},
-    {"id":"k_F1","home":"Netherlands","away":"Japan","hg":2,"ag":2,"status":"FT","date":"2026-06-14","group":"F"},
-    {"id":"k_F2","home":"Sweden","away":"Tunisia","hg":5,"ag":1,"status":"FT","date":"2026-06-15","group":"F"},
-    {"id":"k_I1","home":"France","away":"Senegal","hg":3,"ag":1,"status":"FT","date":"2026-06-16","group":"I"}
+    {
+      "id": "k_B1",
+      "home": "Canada",
+      "away": "Bosnia",
+      "hg": 1,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-12",
+      "group": "B"
+    },
+    {
+      "id": "k_E1",
+      "home": "Germany",
+      "away": "Curacao",
+      "hg": 7,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "E"
+    },
+    {
+      "id": "k_E2",
+      "home": "IvoryCoast",
+      "away": "Ecuador",
+      "hg": 1,
+      "ag": 0,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "E"
+    },
+    {
+      "id": "k_F1",
+      "home": "Netherlands",
+      "away": "Japan",
+      "hg": 2,
+      "ag": 2,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "F"
+    },
+    {
+      "id": "k_F2",
+      "home": "Sweden",
+      "away": "Tunisia",
+      "hg": 5,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-15",
+      "group": "F"
+    },
+    {
+      "id": "k_I1",
+      "home": "France",
+      "away": "Senegal",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-16",
+      "group": "I"
+    },
+    {
+      "id": "espn_760432",
+      "home": "France",
+      "away": "Senegal",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+10'",
+      "period": 2,
+      "date": "2026-06-16",
+      "group": "I"
+    },
+    {
+      "id": "espn_760430",
+      "home": "Iraq",
+      "away": "Norway",
+      "hg": 1,
+      "ag": 4,
+      "status": "FT",
+      "clock": "90'+8'",
+      "period": 2,
+      "date": "2026-06-16",
+      "group": "I"
+    },
+    {
+      "id": "espn_760433",
+      "home": "Argentina",
+      "away": "Algeria",
+      "hg": 3,
+      "ag": 0,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
+      "date": "2026-06-17",
+      "group": "J"
+    }
   ]
 }
