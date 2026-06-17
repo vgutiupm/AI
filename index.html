@@ -391,73 +391,14 @@ function runSimulation(n=8000){
 }
 
 // ─── ESPN FETCH ───────────────────────────────────────────────────────────────
-const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
-const PROXY = 'https://api.allorigins.win/raw?url=';
+const RESULTS_URL = './results.json';
 
-// Known confirmed results hardcoded as fallback (updated to Jun 16 2026)
-const KNOWN_RESULTS = [
-  {id:'k1', home:'Germany',     away:'Curacao',     hg:7, ag:1, status:'FT', date:'2026-06-14T00:00Z'},
-];
-
-async function fetchESPN(){
-  // ESPN scoreboard only reliably returns TODAY's matches
-  // Strategy: fetch today directly + use Claude AI to get historical results
-  let todayEvents = [];
+async function fetchResultsJson(){
+  // Read results.json — committed to this repo by GitHub Actions every 30 min
   try{
-    const r = await fetch(ESPN_URL + '?limit=100', {cache:'no-store', signal: AbortSignal.timeout(6000)});
-    if(r.ok){ const d = await r.json(); todayEvents = d.events || []; }
-  }catch(e){}
-
-  // Also try via proxy as fallback
-  if(!todayEvents.length){
-    try{
-      const url = PROXY + encodeURIComponent(ESPN_URL + '?limit=100');
-      const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout(6000)});
-      if(r.ok){ const d = await r.json(); todayEvents = d.events || []; }
-    }catch(e){}
-  }
-
-  return { events: todayEvents, useKnown: true };
-}
-
-async function fetchHistoricalViaAI(){
-  // Use Claude + web_search to get all completed WC results for our groups
-  const cached = localStorage.getItem('sf_historical');
-  const cacheTime = parseInt(localStorage.getItem('sf_historical_ts')||'0');
-  const AGE_LIMIT = 30 * 60 * 1000; // 30 min cache
-  if(cached && (Date.now() - cacheTime) < AGE_LIMIT){
-    try{ return JSON.parse(cached); }catch(e){}
-  }
-
-  const prompt = `Search for all completed 2026 FIFA World Cup group stage results so far for Groups B, E, F, I, and J only.
-Return ONLY a JSON array of completed matches, no other text:
-[{"home":"TeamName","away":"TeamName","hg":0,"ag":0,"date":"YYYY-MM-DD"}]
-Team names must be exactly: Canada, Switzerland, Bosnia, Qatar, Germany, IvoryCoast, Curacao, Ecuador, Netherlands, Japan, Sweden, Tunisia, France, Senegal, Norway, Iraq, Argentina, Austria, Algeria, Jordan.
-Only include matches with status completed/final. Today is ${new Date().toISOString().slice(0,10)}.`;
-
-  try{
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:800,
-        tools:[{type:'web_search_20250305', name:'web_search'}],
-        messages:[{role:'user', content:prompt}]
-      })
-    });
-    const data = await res.json();
-    // Find the final text block after web search
-    const textBlock = data.content?.filter(b=>b.type==='text').pop();
-    if(textBlock?.text){
-      const clean = textBlock.text.replace(/```json|```/g,'').trim();
-      const match = clean.match(/\[[\s\S]*\]/);
-      if(match){
-        const results = JSON.parse(match[0]);
-        localStorage.setItem('sf_historical', JSON.stringify(results));
-        localStorage.setItem('sf_historical_ts', Date.now().toString());
-        return results;
-      }
-    }
-  }catch(e){ console.error('AI historical fetch failed', e); }
+    const r = await fetch(RESULTS_URL + '?t=' + Date.now(), {cache:'no-store'});
+    if(r.ok) return await r.json();
+  }catch(e){ console.error('results.json fetch failed', e); }
   return null;
 }
 
@@ -507,34 +448,17 @@ async function fetchAndUpdate(){
   const btn=document.getElementById('refreshBtn');
   btn.classList.add('spinning');
 
-  // Seed known hardcoded results first (always reliable)
-  KNOWN_RESULTS.forEach(r => { liveMatches[r.id] = r; });
-
-  // Fetch today from ESPN
-  const data=await fetchESPN();
+  const data = await fetchResultsJson();
   btn.classList.remove('spinning');
 
   if(!data){ setStatus('error'); return; }
 
-  const fresh=parseESPN(data);
+  // Parse results.json format → same structure as liveMatches
+  const fresh = {};
+  (data.results || []).forEach(r => { fresh[r.id] = r; });
 
-  // Fetch historical results via Claude AI (cached 30min)
-  fetchHistoricalViaAI().then(historical => {
-    if(!historical?.length) return;
-    let changed = false;
-    historical.forEach((r,i) => {
-      const id = 'ai_' + r.home + '_' + r.away;
-      if(!liveMatches[id] || liveMatches[id].status !== 'FT'){
-        liveMatches[id] = {...r, id, status:'FT'};
-        changed = true;
-      }
-    });
-    if(changed){
-      prevSim = simResults;
-      simResults = runSimulation();
-      renderAll();
-    }
-  });
+  document.getElementById('lastFetch').textContent =
+    'Updated ' + (data.updated ? new Date(data.updated).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'now');
 
   // Detect newly finished matches (compare against previous snapshot)
   const newlyFinished=[];
@@ -842,8 +766,7 @@ function init(){
   }
   renderEmailPreview();
 
-  // Seed known results and run initial sim
-  KNOWN_RESULTS.forEach(r => { liveMatches[r.id] = r; });
+  // Run initial sim — results load from results.json via fetchAndUpdate below
   simResults=runSimulation();
   renderAll();
 
