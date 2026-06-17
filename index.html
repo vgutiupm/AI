@@ -396,7 +396,7 @@ const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worl
 const PROXY = 'https://api.allorigins.win/raw?url=';
 
 async function fetchESPN(){
-  // Build list of all dates from tournament start to today
+  // Build date list from tournament start to today
   const start = new Date('2026-06-12');
   const today = new Date();
   const dates = [];
@@ -404,29 +404,50 @@ async function fetchESPN(){
     dates.push(d.toISOString().slice(0,10).replace(/-/g,''));
   }
 
-  // Fetch each matchday in parallel
-  const fetches = dates.map(async (date) => {
+  // Load cached events from localStorage to avoid re-fetching old completed days
+  let cachedEvents = {};
+  try{ cachedEvents = JSON.parse(localStorage.getItem('sf_espn_cache')||'{}'); }catch(e){}
+
+  const allEvents = {...cachedEvents};
+  let fetchedAny = false;
+
+  // Fetch sequentially with small delay to avoid proxy rate limits
+  for(const date of dates){
+    // Skip dates we already have completed data for (older than yesterday)
+    const dateObj = new Date(date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+    const isOldDate = dateObj < new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    if(isOldDate && cachedEvents[date]) continue; // use cache for old dates
+
+    let data = null;
+    // Try proxy first
     try{
       const url = PROXY + encodeURIComponent(`${ESPN_URL}?dates=${date}&limit=50`);
-      const r = await fetch(url, {cache:'no-store'});
-      if(r.ok) return await r.json();
+      const r = await fetch(url, {cache:'no-store', signal: AbortSignal.timeout(5000)});
+      if(r.ok) data = await r.json();
     }catch(e){}
-    // Fallback: direct (no proxy)
-    try{
-      const r = await fetch(`${ESPN_URL}?dates=${date}&limit=50`, {cache:'no-store'});
-      if(r.ok) return await r.json();
-    }catch(e){}
-    return null;
-  });
+    // Fallback: direct
+    if(!data){
+      try{
+        const r = await fetch(`${ESPN_URL}?dates=${date}&limit=50`, {cache:'no-store', signal: AbortSignal.timeout(5000)});
+        if(r.ok) data = await r.json();
+      }catch(e){}
+    }
 
-  const results = await Promise.all(fetches);
+    if(data?.events?.length){
+      allEvents[date] = data.events;
+      fetchedAny = true;
+    }
+    // Small delay between requests to avoid rate limiting
+    await new Promise(res => setTimeout(res, 200));
+  }
 
-  // Merge all days into one events array
-  const allEvents = results
-    .filter(Boolean)
-    .flatMap(d => d.events || []);
+  // Persist to localStorage
+  if(fetchedAny){
+    try{ localStorage.setItem('sf_espn_cache', JSON.stringify(allEvents)); }catch(e){}
+  }
 
-  return { events: allEvents };
+  // Return merged flat events list
+  return { events: Object.values(allEvents).flat() };
 }
 
 function parseESPN(data){
@@ -482,7 +503,7 @@ async function fetchAndUpdate(){
 
   const fresh=parseESPN(data);
 
-  // Detect newly finished matches
+  // Detect newly finished matches (compare against previous snapshot)
   const newlyFinished=[];
   Object.entries(fresh).forEach(([id,m])=>{
     const prev=prevMatchSnapshot[id];
@@ -491,12 +512,12 @@ async function fetchAndUpdate(){
     }
   });
 
-  const hadLive=Object.values(prevMatchSnapshot).some(m=>m.status==='LIVE');
   const hasLive=Object.values(fresh).some(m=>m.status==='LIVE');
   isLive=hasLive;
 
-  prevMatchSnapshot={...fresh};
-  liveMatches=fresh;
+  prevMatchSnapshot={...liveMatches, ...fresh};
+  // MERGE: preserve seeded known results, overlay with ESPN data
+  liveMatches={...liveMatches, ...fresh};
 
   // Re-run sim if any match newly finished
   if(newlyFinished.length>0){
