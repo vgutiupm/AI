@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="SF R32"/>
+<meta name="theme-color" content="#07101f"/>
+<link rel="manifest" href="./manifest.json"/>
+<link rel="apple-touch-icon" href="./icon.svg"/>
+<title>SF R32 Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#07101f;--card:#0d1a2e;--border:#1a2d47;
+    --gold:#f5c518;--accent:#3b82f6;--green:#22c55e;--red:#f87171;
+    --dim:#64748b;--text:#e2e8f0;--silver:#94a3b8;--muted:#475569;
+    --safe-top:env(safe-area-inset-top);--safe-bot:env(safe-area-inset-bottom);
+  }
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;min-height:100vh;overscroll-behavior:none}
+  /* ── HEADER ── */
+  .hdr{background:linear-gradient(160deg,#0b1e44,#0e2560 55%,#07101f);
+    padding:calc(16px + var(--safe-top)) 18px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+  .hdr-eyebrow{font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+  .hdr-title{font-size:22px;font-weight:900;letter-spacing:-.5px;line-height:1.1}
+  .hdr-sub{font-size:12px;color:var(--dim);margin-top:3px}
+  .hdr-sub span{color:var(--gold);font-weight:700}
+  /* ── PROGRESS BAR ── */
+  .progress-row{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .progress-track{flex:1;height:4px;background:#1a2d47;border-radius:2px;overflow:hidden}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .5s ease}
+  .progress-label{font-size:11px;color:var(--dim);white-space:nowrap}
+  /* ── TABS ── */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:calc(90px + var(--safe-top));z-index:90;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1;min-width:80px;padding:12px 6px 10px;font-size:12px;font-weight:600;color:var(--dim);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;text-align:center}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  /* ── CONTENT ── */
+  .content{padding:14px 14px calc(80px + var(--safe-bot))}
+  /* ── CARDS ── */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+  .card-label{font-size:10px;letter-spacing:2px;color:var(--silver);text-transform:uppercase;margin-bottom:10px}
+  /* ── TOP PICK ── */
+  .top-pick{background:linear-gradient(135deg,#0d2044,#102860);border:1px solid #3b82f644;border-radius:14px;padding:14px;margin-bottom:12px}
+  .versus-row{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 4px}
+  .team-block{text-align:center}
+  .team-flag{font-size:44px;line-height:1}
+  .team-name{font-weight:900;font-size:16px;margin-top:2px}
+  .team-sub{font-size:10px;color:var(--dim)}
+  .vs-badge{font-size:18px;font-weight:900;color:var(--gold)}
+  /* ── CANDIDATE ROW ── */
+  .cand-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .cand-flag{font-size:22px;flex-shrink:0}
+  .cand-info{flex:1;min-width:0}
+  .cand-name{font-weight:700;font-size:14px}
+  .cand-meta{font-size:10px;color:var(--dim);margin-top:1px}
+  .cand-pct{font-size:16px;font-weight:900;min-width:42px;text-align:right}
+  .bar-track{height:5px;background:#1a2d47;border-radius:3px;overflow:hidden;margin-top:4px}
+  .bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+  /* ── GROUP GRID ── */
+  .group-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .team-tile{background:#08121f;border:1px solid var(--border);border-radius:10px;padding:10px 11px}
+  .team-tile.leader{border-color:#f5c51844}
+  .tile-top{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+  .tile-flag{font-size:18px}
+  .tile-name{font-weight:700;font-size:12px;line-height:1.2}
+  .tile-star{font-size:9px;color:var(--dim)}
+  .pct-row{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:2px}
+  .pct-val{font-weight:700}
+  .delta{font-size:9px;margin-left:2px}
+  .delta.up{color:var(--green)}
+  .delta.dn{color:var(--red)}
+  /* ── MATCH LIST ── */
+  .match-row{display:flex;align-items:center;gap:6px;padding:9px 0;border-top:1px solid var(--border)}
+  .match-date{font-size:10px;color:var(--dim);min-width:36px;flex-shrink:0}
+  .match-home{flex:1;text-align:right;font-size:13px}
+  .match-score{min-width:52px;text-align:center;font-weight:900;font-size:15px;color:var(--gold)}
+  .match-away{flex:1;font-size:13px}
+  .match-pending{min-width:52px;text-align:center;font-size:10px;color:var(--muted);background:#111f35;border:1px dashed var(--border);border-radius:6px;padding:3px 0}
+  .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  /* ── EMAIL SETUP ── */
+  .email-row{display:flex;gap:8px;margin-top:8px}
+  .email-input{flex:1;background:#09131f;border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;-webkit-appearance:none}
+  .email-input:focus{border-color:var(--accent)}
+  .btn{border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-saved{background:#14532d;color:#fff}
+  .btn-send{background:#1d4ed8;color:#fff}
+  .btn-disabled{background:var(--muted);color:#fff;cursor:not-allowed}
+  /* ── FETCH STATUS ── */
+  .fetch-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);margin-top:8px}
+  .status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .dot-green{background:var(--green)}
+  .dot-yellow{background:var(--gold);animation:pulse 1.2s infinite}
+  .dot-red{background:var(--red)}
+  /* ── TOAST ── */
+  #toast{position:fixed;top:calc(16px + var(--safe-top));left:14px;right:14px;z-index:999;
+    padding:12px 16px;border-radius:12px;font-weight:700;font-size:13px;text-align:center;
+    box-shadow:0 8px 24px #0009;transform:translateY(-20px);opacity:0;
+    transition:all .3s ease;pointer-events:none}
+  #toast.show{transform:translateY(0);opacity:1}
+  /* ── BOTTOM NAV ── */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#0a1628;
+    border-top:1px solid var(--border);display:flex;
+    padding-bottom:var(--safe-bot);z-index:100}
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:10px 4px 8px;font-size:10px;color:var(--dim);background:none;border:none;cursor:pointer;transition:color .2s}
+  .nav-btn.active{color:var(--accent)}
+  .nav-icon{font-size:20px;line-height:1}
+  /* ── LAST EMAIL ── */
+  .email-preview{background:#0a1f0a;border:1px solid #22c55e33;border-radius:10px;padding:10px 12px;margin-top:8px}
+  .email-subj{color:var(--green);font-weight:700;font-size:12px;margin-bottom:2px}
+  .email-body{font-size:11px;color:var(--dim);line-height:1.4}
+  /* ── REFRESH BTN ── */
+  .refresh-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;
+    color:var(--dim);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px}
+  .refresh-btn.spinning .spin-icon{display:inline-block;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* ── FACTOR TAGS ── */
+  .factors{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .factor-tag{font-size:10px;padding:2px 7px;border-radius:5px}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-eyebrow">🏟️ Levi's Stadium · SF · July 1 2026</div>
+    <div class="hdr-title">SF R32 Tracker</div>
+    <div class="hdr-sub"><span>🇺🇸 USA</span> vs. 3rd Place — auto-fetches every result</div>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label" id="progressLabel">0/30</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('live')" id="tab-live">⚽ Live</button>
+    <button class="tab" onclick="showTab('sim')" id="tab-sim">📊 Sim</button>
+    <button class="tab" onclick="showTab('matches')" id="tab-matches">📋 Matches</button>
+    <button class="tab" onclick="showTab('notify')" id="tab-notify">🔔 Alerts</button>
+  </div>
+
+  <div class="content">
+    <!-- LIVE TAB -->
+    <div id="pane-live">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="fetch-status">
+          <div class="status-dot dot-yellow" id="statusDot"></div>
+          <span id="statusText">Fetching live scores…</span>
+        </div>
+        <button class="refresh-btn" id="refreshBtn" onclick="fetchAndUpdate()">
+          <span class="spin-icon">↻</span> Refresh
+        </button>
+      </div>
+
+      <!-- SF matchup hero -->
+      <div class="top-pick" id="topPickCard">
+        <div class="card-label">🏟️ Most Likely SF R32 Matchup</div>
+        <div class="versus-row">
+          <div class="team-block">
+            <div class="team-flag">🇺🇸</div>
+            <div class="team-name">USA</div>
+            <div class="team-sub">Group D Winner</div>
+          </div>
+          <div class="vs-badge">VS</div>
+          <div class="team-block" id="oppBlock">
+            <div class="team-flag" id="oppFlag">❓</div>
+            <div class="team-name" id="oppName">Loading…</div>
+            <div class="team-sub" id="oppSub">Simulating…</div>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:10px;color:var(--dim);margin-top:4px">📍 Levi's Stadium, Santa Clara · July 1, 2026 · 5pm PT</div>
+      </div>
+
+      <!-- Top 3 candidates -->
+      <div class="card">
+        <div class="card-label">Top 3rd-Place Candidates (USA's Potential Opponents)</div>
+        <div id="candidatesList"></div>
+      </div>
+
+      <!-- Live/recent results -->
+      <div class="card" id="liveResultsCard">
+        <div class="card-label" style="display:flex;justify-content:space-between">
+          <span>Recent Results</span>
+          <span id="lastFetch" style="font-size:10px;color:var(--dim)"></span>
+        </div>
+        <div id="liveResultsList"><div style="color:var(--dim);font-size:13px;padding:8px 0">Fetching from ESPN…</div></div>
+      </div>
+    </div>
+
+    <!-- SIM TAB -->
+    <div id="pane-sim" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:11px;color:var(--dim)">8,000 Monte Carlo runs · updates after each result</div>
+        <button class="refresh-btn" onclick="rerunSim()" id="simRunBtn"><span class="spin-icon">↻</span> Re-run</button>
+      </div>
+      <div class="factors">
+        <span class="factor-tag" style="background:#3b82f622;color:var(--accent);border:1px solid #3b82f644">FIFA Rank 40%</span>
+        <span class="factor-tag" style="background:#f5c51822;color:var(--gold);border:1px solid #f5c51844">Opta 35%</span>
+        <span class="factor-tag" style="background:#a855f722;color:#c084fc;border:1px solid #a855f744">Pedigree 10%</span>
+        <span class="factor-tag" style="background:#22c55e22;color:var(--green);border:1px solid #22c55e44">Form 10%</span>
+        <span class="factor-tag" style="background:#f8717122;color:var(--red);border:1px solid #f8717144">H2H 5%</span>
+      </div>
+      <div id="simGroups" style="margin-top:12px"></div>
+    </div>
+
+    <!-- MATCHES TAB -->
+    <div id="pane-matches" style="display:none">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px">Groups B · E · F · I · J — whose 3rd place goes to SF</div>
+      <div id="matchesList"></div>
+    </div>
+
+    <!-- NOTIFY TAB -->
+    <div id="pane-notify" style="display:none">
+      <div class="card">
+        <div class="card-label" id="emailStatusLabel">📧 Email Notifications</div>
+        <p style="font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.6">Get a full breakdown email automatically every time ESPN reports a finished match in Groups B, E, F, I, or J.</p>
+        <div class="email-row">
+          <input class="email-input" type="email" id="emailInput" placeholder="your@email.com"/>
+          <button class="btn btn-primary" id="saveEmailBtn" onclick="saveEmail()">Save</button>
+        </div>
+        <div class="email-row" style="margin-top:6px">
+          <button class="btn btn-send" id="sendNowBtn" onclick="sendNowEmail()" style="width:100%;display:none">📤 Send Summary Now</button>
+        </div>
+        <div class="fetch-status" style="margin-top:6px">
+          <div class="status-dot dot-green"></div>
+          <span>Auto-fetch runs every 3 minutes during match windows</span>
+        </div>
+        <div id="lastEmailPreview"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How It Works</div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.8">
+          1️⃣ App polls ESPN every 3 min<br/>
+          2️⃣ New result detected → sim re-runs instantly<br/>
+          3️⃣ Claude writes a personalized email<br/>
+          4️⃣ Sent to your Gmail via MCP<br/>
+          5️⃣ App badge updates with new top opponent
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="showTab('live')" id="nav-live"><div class="nav-icon">⚽</div>Live</button>
+    <button class="nav-btn" onclick="showTab('sim')" id="nav-sim"><div class="nav-icon">📊</div>Sim</button>
+    <button class="nav-btn" onclick="showTab('matches')" id="nav-matches"><div class="nav-icon">📋</div>Matches</button>
+    <button class="nav-btn" onclick="showTab('notify')" id="nav-notify"><div class="nav-icon">🔔</div>Alerts</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const TEAMS = {
+  Canada:      {flag:"🇨🇦",rank:40,opta:.52,form:1.05,ped:.80,star:1.06,starName:"A. Davies",group:"B"},
+  Switzerland: {flag:"🇨🇭",rank:18,opta:1.8, form:1.04,ped:.88,star:1.04,starName:"G. Xhaka",group:"B"},
+  Bosnia:      {flag:"🇧🇦",rank:55,opta:.4,  form:1.02,ped:.60,star:1.02,starName:"E. Dzeko",group:"B"},
+  Qatar:       {flag:"🇶🇦",rank:58,opta:.1,  form:.90, ped:.45,star:.95, starName:"A. Afif",group:"B"},
+  Germany:     {flag:"🇩🇪",rank:9, opta:5.1, form:1.12,ped:1.2,star:1.10,starName:"J. Musiala",group:"E"},
+  Ecuador:     {flag:"🇪🇨",rank:23,opta:1.1, form:1.03,ped:.78,star:1.03,starName:"E. Valencia",group:"E"},
+  IvoryCoast:  {flag:"🇨🇮",rank:42,opta:.6,  form:1.02,ped:.72,star:1.04,starName:"S. Kessie",group:"E"},
+  Curacao:     {flag:"🇨🇼",rank:82,opta:.0,  form:.85, ped:.20,star:.90, starName:"Bonevacia",group:"E"},
+  Netherlands: {flag:"🇳🇱",rank:7, opta:3.6, form:1.08,ped:1.1,star:1.09,starName:"V. van Dijk",group:"F"},
+  Japan:       {flag:"🇯🇵",rank:21,opta:1.5, form:1.07,ped:.85,star:1.07,starName:"T. Kubo",group:"F"},
+  Sweden:      {flag:"🇸🇪",rank:31,opta:.8,  form:1.03,ped:.88,star:1.03,starName:"V. Gyökeres",group:"F"},
+  Tunisia:     {flag:"🇹🇳",rank:36,opta:.3,  form:.98, ped:.62,star:1.00,starName:"Msakni",group:"F"},
+  France:      {flag:"🇫🇷",rank:3, opta:13,  form:1.15,ped:1.3,star:1.14,starName:"Mbappé",group:"I"},
+  Senegal:     {flag:"🇸🇳",rank:19,opta:1.2, form:1.05,ped:.80,star:1.06,starName:"S. Mané",group:"I"},
+  Norway:      {flag:"🇳🇴",rank:33,opta:2.1, form:1.18,ped:.72,star:1.20,starName:"E. Haaland",group:"I"},
+  Iraq:        {flag:"🇮🇶",rank:65,opta:.1,  form:.92, ped:.38,star:.92, starName:"A. Hussein",group:"I"},
+  Argentina:   {flag:"🇦🇷",rank:2, opta:10.4,form:1.13,ped:1.35,star:1.15,starName:"L. Messi",group:"J"},
+  Austria:     {flag:"🇦🇹",rank:24,opta:1.0, form:1.06,ped:.82,star:1.05,starName:"M. Sabitzer",group:"J"},
+  Algeria:     {flag:"🇩🇿",rank:35,opta:.7,  form:1.04,ped:.70,star:1.04,starName:"S. Benrahma",group:"J"},
+  Jordan:      {flag:"🇯🇴",rank:66,opta:.0,  form:.95, ped:.25,star:.93, starName:"Y. Al Naimat",group:"J"},
+};
+const GROUPS = {
+  B:["Canada","Switzerland","Bosnia","Qatar"],
+  E:["Germany","Ecuador","IvoryCoast","Curacao"],
+  F:["Netherlands","Japan","Sweden","Tunisia"],
+  I:["France","Senegal","Norway","Iraq"],
+  J:["Argentina","Austria","Algeria","Jordan"],
+};
+const GROUP_LABELS = {B:"Group B",E:"Group E",F:"Group F",I:"Group I",J:"Group J"};
+
+// ESPN team name → our key mapping
+const ESPN_MAP = {
+  "canada":"Canada","switzerland":"Switzerland","bosnia":"Bosnia","bosnia and herzegovina":"Bosnia",
+  "qatar":"Qatar","germany":"Germany","ivory coast":"IvoryCoast","côte d'ivoire":"IvoryCoast",
+  "ecuador":"Ecuador","curaçao":"Curacao","curacao":"Curacao","netherlands":"Netherlands",
+  "japan":"Japan","sweden":"Sweden","tunisia":"Tunisia","france":"France",
+  "senegal":"Senegal","norway":"Norway","iraq":"Iraq","argentina":"Argentina",
+  "austria":"Austria","algeria":"Algeria","jordan":"Jordan",
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let liveMatches = {};    // id → {home,away,hg,ag,status}
+let simResults = null;
+let prevSim = null;
+let userEmail = localStorage.getItem('sf_email') || '';
+let lastEmailSent = JSON.parse(localStorage.getItem('sf_last_email')||'null');
+let fetchInterval = null;
+let isLive = false;
+
+// ─── SIMULATION ───────────────────────────────────────────────────────────────
+function teamStrength(name) {
+  const t = TEAMS[name]; if(!t) return .5;
+  const rs = Math.max(.05, 1.2 - t.rank/90);
+  const os = Math.sqrt(t.opta/16);
+  const base = rs*.40 + os*.35 + (t.ped*.10-.08);
+  const dyn = getDynForm(name);
+  return base * t.form * t.star * dyn;
+}
+
+function getDynForm(name) {
+  let pts=0,played=0;
+  Object.values(liveMatches).filter(m=>m.status==='FT').forEach(m=>{
+    if(m.home===name||m.away===name){
+      played++;
+      const isHome=m.home===name;
+      const gs=isHome?m.hg:m.ag, gc=isHome?m.ag:m.hg;
+      if(gs>gc)pts+=3; else if(gs===gc)pts+=1;
+    }
+  });
+  if(!played) return 1.0;
+  const ppg=pts/played;
+  const t=TEAMS[name];
+  const exp=(1.2-t.rank/100)*1.8;
+  return Math.max(.6, Math.min(1.5,(ppg+.5)/(exp+.5)*.85+.15));
+}
+
+function poisson(lam){
+  lam=Math.max(.3,lam);
+  let L=Math.exp(-lam),k=0,p=1;
+  do{k++;p*=Math.random();}while(p>L);
+  return k-1;
+}
+
+function simMatch(a,b){
+  const sa=teamStrength(a),sb=teamStrength(b),tot=sa+sb;
+  return{hg:poisson(sa/tot*2.3),ag:poisson(sb/tot*2.3)};
+}
+
+function runGroup(g){
+  const ns=GROUPS[g],st={};
+  ns.forEach(n=>{st[n]={pts:0,gf:0,ga:0,gd:0,w:0,d:0,l:0};});
+  const res=[];
+  for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+    const A=ns[i],B=ns[j];
+    const live=Object.values(liveMatches).find(m=>
+      m.status==='FT'&&((m.home===A&&m.away===B)||(m.home===B&&m.away===A)));
+    let hg,ag;
+    if(live){hg=live.home===A?live.hg:live.ag;ag=live.home===A?live.ag:live.hg;}
+    else{const s=simMatch(A,B);hg=s.hg;ag=s.ag;}
+    res.push({home:A,away:B,hg,ag,known:!!live});
+    st[A].gf+=hg;st[A].ga+=ag;st[A].gd+=hg-ag;
+    st[B].gf+=ag;st[B].ga+=hg;st[B].gd+=ag-hg;
+    if(hg>ag){st[A].pts+=3;st[A].w++;st[B].l++;}
+    else if(hg<ag){st[B].pts+=3;st[B].w++;st[A].l++;}
+    else{st[A].pts++;st[B].pts++;st[A].d++;st[B].d++;}
+  }
+  const sorted=ns.slice().sort((a,b)=>st[b].pts-st[a].pts||st[b].gd-st[a].gd||st[b].gf-st[a].gf);
+  return{sorted,st,res};
+}
+
+function runSimulation(n=8000){
+  const wc={},tc={};
+  Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(t=>{wc[t]=0;tc[t]=0;}));
+  for(let i=0;i<n;i++)Object.keys(GROUPS).forEach(g=>{
+    const{sorted}=runGroup(g);
+    wc[sorted[0]]=(wc[sorted[0]]||0)+1;
+    tc[sorted[2]]=(tc[sorted[2]]||0)+1;
+  });
+  const out={};
+  Object.keys(GROUPS).forEach(g=>{
+    out[g]=GROUPS[g].map(t=>({
+      name:t,...TEAMS[t],
+      winPct:+((wc[t]||0)/n*100).toFixed(1),
+      thirdPct:+((tc[t]||0)/n*100).toFixed(1),
+    })).sort((a,b)=>b.winPct-a.winPct);
+  });
+  return out;
+}
+
+// ─── ESPN FETCH ───────────────────────────────────────────────────────────────
+const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
+// We use a CORS proxy for browser compatibility
+const PROXY = 'https://api.allorigins.win/raw?url=';
+
+async function fetchESPN(){
+  try{
+    const url = PROXY + encodeURIComponent(ESPN_URL + '?limit=100');
+    const r = await fetch(url, {cache:'no-store'});
+    if(!r.ok) throw new Error('ESPN fetch failed');
+    const data = await r.json();
+    return data;
+  }catch(e){
+    // Fallback: try direct (works when CORS not an issue)
+    try{
+      const r = await fetch(ESPN_URL + '?limit=100', {cache:'no-store'});
+      return await r.json();
+    }catch(e2){ return null; }
+  }
+}
+
+function parseESPN(data){
+  if(!data?.events) return {};
+  const results={};
+  data.events.forEach(ev=>{
+    const comp=ev.competitions?.[0];
+    if(!comp) return;
+    const competitors=comp.competitors||[];
+    if(competitors.length<2) return;
+
+    const home=competitors.find(c=>c.homeAway==='home');
+    const away=competitors.find(c=>c.homeAway==='away');
+    if(!home||!away) return;
+
+    const hName=ESPN_MAP[home.team?.displayName?.toLowerCase()]||null;
+    const aName=ESPN_MAP[away.team?.displayName?.toLowerCase()]||null;
+    // Only care about our groups
+    if(!hName||!aName) return;
+    const t=TEAMS[hName];
+    if(!t||!['B','E','F','I','J'].includes(t.group)) return;
+
+    const status=ev.status?.type?.state; // 'pre','in','post'
+    const completed=ev.status?.type?.completed;
+    const hScore=parseInt(home.score)||0;
+    const aScore=parseInt(away.score)||0;
+    const id=ev.id;
+    const clock=ev.status?.displayClock||'';
+    const period=ev.status?.period||0;
+
+    results[id]={
+      id, home:hName, away:aName,
+      hg:hScore, ag:aScore,
+      status: completed?'FT': status==='in'?'LIVE':'PRE',
+      clock, period,
+      date: ev.date,
+    };
+  });
+  return results;
+}
+
+let prevMatchSnapshot = {};
+
+async function fetchAndUpdate(){
+  setStatus('fetching');
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+
+  const data=await fetchESPN();
+  btn.classList.remove('spinning');
+
+  if(!data){ setStatus('error'); return; }
+
+  const fresh=parseESPN(data);
+
+  // Detect newly finished matches
+  const newlyFinished=[];
+  Object.entries(fresh).forEach(([id,m])=>{
+    const prev=prevMatchSnapshot[id];
+    if(m.status==='FT'&&(!prev||prev.status!=='FT')){
+      newlyFinished.push(m);
+    }
+  });
+
+  const hadLive=Object.values(prevMatchSnapshot).some(m=>m.status==='LIVE');
+  const hasLive=Object.values(fresh).some(m=>m.status==='LIVE');
+  isLive=hasLive;
+
+  prevMatchSnapshot={...fresh};
+  liveMatches=fresh;
+
+  // Re-run sim if any match newly finished
+  if(newlyFinished.length>0){
+    prevSim=simResults;
+    simResults=runSimulation();
+    renderAll();
+    // Send email for each new result
+    for(const m of newlyFinished){
+      if(userEmail) await sendEmail(m);
+    }
+    toast(`✅ ${newlyFinished.map(m=>`${TEAMS[m.home]?.flag||''}${m.hg}–${m.ag}${TEAMS[m.away]?.flag||''}`).join(' ')} — sim updated!`, '#22c55e');
+  } else {
+    renderAll();
+  }
+
+  setStatus('ok');
+  document.getElementById('lastFetch').textContent = 'Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  adjustPollInterval(hasLive);
+}
+
+function adjustPollInterval(live){
+  if(fetchInterval) clearInterval(fetchInterval);
+  const delay = live ? 30000 : 180000; // 30s when live, 3min otherwise
+  fetchInterval = setInterval(fetchAndUpdate, delay);
+}
+
+// ─── RENDERING ───────────────────────────────────────────────────────────────
+function renderAll(){
+  renderProgress();
+  renderTopPick();
+  renderCandidates();
+  renderLiveResults();
+  renderSimGroups();
+  renderMatchList();
+}
+
+function renderProgress(){
+  const total=Object.keys(GROUPS).reduce((s,g)=>s+GROUPS[g].length*(GROUPS[g].length-1)/2,0);
+  const done=Object.values(liveMatches).filter(m=>m.status==='FT').length;
+  document.getElementById('progressFill').style.width=(done/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`${done}/${total}`;
+}
+
+function topCandidates(){
+  if(!simResults) return [];
+  return Object.keys(GROUPS).flatMap(g=>simResults[g].map(t=>({...t,group:g})))
+    .sort((a,b)=>b.thirdPct-a.thirdPct);
+}
+
+function renderTopPick(){
+  const top=topCandidates();
+  if(!top.length) return;
+  const opp=top[0];
+  document.getElementById('oppFlag').textContent=opp.flag;
+  document.getElementById('oppName').textContent=opp.name==='IvoryCoast'?'Ivory Coast':opp.name;
+  document.getElementById('oppSub').textContent=`3rd in Grp ${opp.group} · ${opp.thirdPct}% chance`;
+}
+
+function renderCandidates(){
+  const top=topCandidates().slice(0,5);
+  const el=document.getElementById('candidatesList');
+  if(!top.length){el.innerHTML='<div style="color:var(--dim);font-size:13px">Running simulation…</div>';return;}
+  el.innerHTML=top.map((t,i)=>{
+    const color=i===0?'var(--gold)':i<=2?'var(--accent)':'var(--muted)';
+    const prev=prevSim?Object.keys(GROUPS).flatMap(g=>prevSim[g].map(p=>({...p,group:g}))).find(p=>p.name===t.name):null;
+    const diff=prev?+(t.thirdPct-prev.thirdPct).toFixed(1):null;
+    const deltaHtml=diff!==null&&Math.abs(diff)>.3
+      ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
+    return `<div class="cand-row">
+      <div class="cand-flag">${t.flag}</div>
+      <div class="cand-info">
+        <div class="cand-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name} <span style="font-size:10px;color:var(--dim)">Grp ${t.group}</span></div>
+        <div class="cand-meta">⭐ ${t.starName} · Win grp: ${t.winPct}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.thirdPct/30*100)}%;background:${color}"></div></div>
+      </div>
+      <div class="cand-pct" style="color:${color}">${t.thirdPct}%${deltaHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLiveResults(){
+  const el=document.getElementById('liveResultsList');
+  const relevant=Object.values(liveMatches)
+    .filter(m=>['FT','LIVE'].includes(m.status))
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .slice(0,10);
+  if(!relevant.length){el.innerHTML='<div style="color:var(--dim);font-size:13px;padding:4px 0">No results yet from Groups B/E/F/I/J</div>';return;}
+  el.innerHTML=relevant.map(m=>{
+    const ht=TEAMS[m.home],at=TEAMS[m.away];
+    const isLiveM=m.status==='LIVE';
+    const scoreColor=isLiveM?'var(--green)':'var(--gold)';
+    const clockStr=isLiveM?`<span class="live-dot"></span>${m.clock}'`:'FT';
+    return `<div class="match-row">
+      <div class="match-date" style="color:${isLiveM?'var(--green)':'var(--dim)'}">${clockStr}</div>
+      <div class="match-home">${ht?.flag||''} ${m.home==='IvoryCoast'?'Ivory Coast':m.home}</div>
+      <div class="match-score" style="color:${scoreColor}">${m.hg}–${m.ag}</div>
+      <div class="match-away">${m.away==='IvoryCoast'?'Ivory Coast':m.away} ${at?.flag||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSimGroups(){
+  const el=document.getElementById('simGroups');
+  if(!simResults){el.innerHTML='<div style="color:var(--dim);padding:20px;text-align:center">Running simulation…</div>';return;}
+  const medals=['🥇','🥈','🥉','4️⃣'];
+  const mcolors=['var(--gold)','var(--silver)','var(--bronze,#cd7f32)','var(--muted)'];
+  el.innerHTML=Object.keys(GROUPS).map(g=>`
+    <div class="card">
+      <div class="card-label">${GROUP_LABELS[g]}</div>
+      <div class="group-grid">
+        ${simResults[g].map((t,i)=>{
+          const prev=prevSim?.[g]?.find(p=>p.name===t.name);
+          const diff=prev?+(t.thirdPct-prev.thirdPct).toFixed(1):null;
+          const deltaHtml=diff!==null&&Math.abs(diff)>.3
+            ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
+          return `<div class="team-tile ${i===0?'leader':''}">
+            <div class="tile-top">
+              <span style="font-size:10px;color:${mcolors[i]}">${medals[i]}</span>
+              <span class="tile-flag">${t.flag}</span>
+              <div>
+                <div class="tile-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name}</div>
+                <div class="tile-star">⭐ ${t.starName}</div>
+              </div>
+            </div>
+            <div class="pct-row"><span>Win group</span><span class="pct-val" style="color:var(--gold)">${t.winPct}%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.winPct)}%;background:var(--gold)"></div></div>
+            <div class="pct-row" style="margin-top:5px"><span>Finish 3rd</span><span class="pct-val" style="color:var(--accent)">${t.thirdPct}%${deltaHtml}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.thirdPct/.5)}%;background:var(--accent)"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderMatchList(){
+  const el=document.getElementById('matchesList');
+  el.innerHTML=Object.keys(GROUPS).map(g=>`
+    <div class="card">
+      <div class="card-label">${GROUP_LABELS[g]}</div>
+      ${Object.values(liveMatches).filter(m=>TEAMS[m.home]?.group===g||TEAMS[m.away]?.group===g)
+        .sort((a,b)=>new Date(a.date)-new Date(b.date))
+        .map(m=>{
+          const ht=TEAMS[m.home],at=TEAMS[m.away];
+          const isLiveM=m.status==='LIVE';
+          const isPre=m.status==='PRE';
+          return `<div class="match-row">
+            <div class="match-date" style="color:${isLiveM?'var(--green)':isPre?'var(--dim)':'var(--dim)'}">
+              ${isLiveM?`<span class="live-dot"></span>${m.clock}'`:m.status==='FT'?'FT':new Date(m.date).toLocaleDateString([],{month:'short',day:'numeric'})}
+            </div>
+            <div class="match-home">${ht?.flag||''} ${m.home==='IvoryCoast'?'Ivory Coast':m.home}</div>
+            ${isPre
+              ?`<div class="match-pending">vs</div>`
+              :`<div class="match-score" style="color:${isLiveM?'var(--green)':'var(--gold)'}">${m.hg}–${m.ag}</div>`}
+            <div class="match-away">${m.away==='IvoryCoast'?'Ivory Coast':m.away} ${at?.flag||''}</div>
+          </div>`;
+        }).join('')}
+    </div>`).join('');
+}
+
+// ─── EMAIL ────────────────────────────────────────────────────────────────────
+async function sendEmail(triggerMatch){
+  if(!userEmail||!simResults) return;
+  const top=topCandidates().slice(0,3).map(t=>`${t.flag} ${t.name==='IvoryCoast'?'Ivory Coast':t.name} (Grp ${t.group}): ${t.thirdPct}%`).join('\n');
+  const groupSummary=Object.keys(GROUPS).map(g=>`${GROUP_LABELS[g]}: `+
+    simResults[g].map((t,i)=>`${['1st','2nd','3rd','4th'][i]} ${t.flag}${t.name==='IvoryCoast'?'Ivory Coast':t.name} — 3rd:${t.thirdPct}%`).join(' | ')
+  ).join('\n');
+  const matchStr=triggerMatch
+    ?`${TEAMS[triggerMatch.home]?.flag||''}${triggerMatch.home} ${triggerMatch.hg}–${triggerMatch.ag} ${triggerMatch.away}${TEAMS[triggerMatch.away]?.flag||''}`
+    :'Manual summary request';
+
+  const prompt=`Write a concise, exciting World Cup analyst email for a fan tracking who plays USA in San Francisco R32 (July 1, Levi's Stadium).
+
+NEW RESULT: ${matchStr}
+
+TOP SF OPPONENT CANDIDATES (3rd place):
+${top}
+
+GROUP BREAKDOWN:
+${groupSummary}
+
+Write with:
+- Subject starting "⚽ SF R32 Update:"
+- Punchy opener referencing the result
+- Top 3 USA opponents analysis (why each team is/isn't likely)
+- Notable group shift if any
+- Next match to watch
+- Under 220 words, energetic tone
+
+Return ONLY: {"subject":"...","body":"..."}`;
+
+  try{
+    const cr=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    const cd=await cr.json();
+    const txt=cd.content?.find(b=>b.type==='text')?.text||'{}';
+    let parsed;
+    try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}
+    catch{parsed={subject:'⚽ SF R32 Update',body:txt};}
+
+    // Send via Gmail MCP
+    const gp=`Send an email via Gmail to ${userEmail}.\nSubject: ${parsed.subject}\nBody:\n${parsed.body}\n\n— SF R32 Tracker Bot\n📍 USA vs TBD · Levi's Stadium · July 1, 2026`;
+    await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,
+        messages:[{role:'user',content:gp}],
+        mcp_servers:[{type:'url',url:'https://gmailmcp.googleapis.com/mcp/v1',name:'gmail-mcp'}]})
+    });
+    const preview={subject:parsed.subject,body:(parsed.body||'').slice(0,140)+'…'};
+    lastEmailSent=preview;
+    localStorage.setItem('sf_last_email',JSON.stringify(preview));
+    renderEmailPreview();
+  }catch(e){console.error('Email error',e);}
+}
+
+async function sendNowEmail(){ await sendEmail(null); toast('📧 Summary sent!','#22c55e'); }
+
+function renderEmailPreview(){
+  const el=document.getElementById('lastEmailPreview');
+  if(!lastEmailSent){el.innerHTML='';return;}
+  el.innerHTML=`<div class="email-preview">
+    <div class="email-subj">${lastEmailSent.subject}</div>
+    <div class="email-body">${lastEmailSent.body}</div>
+  </div>`;
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function showTab(id){
+  ['live','sim','matches','notify'].forEach(t=>{
+    document.getElementById('pane-'+t).style.display=t===id?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+    document.getElementById('nav-'+t).classList.toggle('active',t===id);
+  });
+}
+
+function setStatus(s){
+  const dot=document.getElementById('statusDot');
+  const txt=document.getElementById('statusText');
+  if(s==='ok'){dot.className='status-dot dot-green';txt.textContent=isLive?'🔴 Live match in progress':'Live · auto-refreshing';}
+  else if(s==='fetching'){dot.className='status-dot dot-yellow';txt.textContent='Fetching ESPN scores…';}
+  else{dot.className='status-dot dot-red';txt.textContent='ESPN unavailable · retrying…';}
+}
+
+function toast(msg,color='#22c55e'){
+  const el=document.getElementById('toast');
+  el.style.background=color; el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function saveEmail(){
+  const v=document.getElementById('emailInput').value.trim();
+  if(!v.includes('@')){toast('Enter a valid email address','#f87171');return;}
+  userEmail=v; localStorage.setItem('sf_email',v);
+  document.getElementById('emailStatusLabel').textContent='✅ Email notifications active';
+  document.getElementById('saveEmailBtn').textContent='✓ Saved';
+  document.getElementById('saveEmailBtn').className='btn btn-saved';
+  document.getElementById('sendNowBtn').style.display='block';
+  toast('✅ Email saved — you\'ll get updates automatically!');
+}
+
+function rerunSim(){
+  const btn=document.getElementById('simRunBtn');
+  btn.classList.add('spinning');
+  setTimeout(()=>{
+    prevSim=simResults;
+    simResults=runSimulation();
+    renderAll();
+    btn.classList.remove('spinning');
+    toast('✅ Sim refreshed','#3b82f6');
+  },40);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init(){
+  // Register service worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+
+  // Restore email
+  if(userEmail){
+    document.getElementById('emailInput').value=userEmail;
+    document.getElementById('emailStatusLabel').textContent='✅ Email notifications active';
+    document.getElementById('saveEmailBtn').textContent='✓ Saved';
+    document.getElementById('saveEmailBtn').className='btn btn-saved';
+    document.getElementById('sendNowBtn').style.display='block';
+  }
+  renderEmailPreview();
+
+  // Run initial sim with known results pre-seeded
+  liveMatches['known_E1']={id:'known_E1',home:'Germany',away:'Curacao',hg:7,ag:1,status:'FT',date:new Date('2026-06-14').toISOString()};
+  simResults=runSimulation();
+  renderAll();
+
+  // Start fetching
+  fetchAndUpdate();
+  setInterval(()=>{
+    const now=new Date();
+    const h=now.getUTCHours();
+    // Poll more frequently during typical match windows (14:00–04:00 UTC)
+    if(h>=14||h<=4) fetchAndUpdate();
+  }, 90000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "SF R32 Tracker",
+  "short_name": "SF R32",
+  "description": "Who plays USA in San Francisco? Live World Cup R32 tracker.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07101f",
+  "theme_color": "#07101f",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

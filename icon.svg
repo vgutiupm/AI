@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#07101f"/>
+  <text x="256" y="320" font-size="260" text-anchor="middle" font-family="serif">⚽</text>
+  <rect x="40" y="380" width="432" height="6" rx="3" fill="#3b82f6" opacity=".7"/>
+  <text x="256" y="460" font-size="72" text-anchor="middle" font-family="sans-serif" fill="#f5c518" font-weight="900">SF R32</text>
+</svg>
