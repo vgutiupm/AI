@@ -396,19 +396,37 @@ const ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worl
 const PROXY = 'https://api.allorigins.win/raw?url=';
 
 async function fetchESPN(){
-  try{
-    const url = PROXY + encodeURIComponent(ESPN_URL + '?limit=100');
-    const r = await fetch(url, {cache:'no-store'});
-    if(!r.ok) throw new Error('ESPN fetch failed');
-    const data = await r.json();
-    return data;
-  }catch(e){
-    // Fallback: try direct (works when CORS not an issue)
-    try{
-      const r = await fetch(ESPN_URL + '?limit=100', {cache:'no-store'});
-      return await r.json();
-    }catch(e2){ return null; }
+  // Build list of all dates from tournament start to today
+  const start = new Date('2026-06-12');
+  const today = new Date();
+  const dates = [];
+  for(let d = new Date(start); d <= today; d.setDate(d.getDate()+1)){
+    dates.push(d.toISOString().slice(0,10).replace(/-/g,''));
   }
+
+  // Fetch each matchday in parallel
+  const fetches = dates.map(async (date) => {
+    try{
+      const url = PROXY + encodeURIComponent(`${ESPN_URL}?dates=${date}&limit=50`);
+      const r = await fetch(url, {cache:'no-store'});
+      if(r.ok) return await r.json();
+    }catch(e){}
+    // Fallback: direct (no proxy)
+    try{
+      const r = await fetch(`${ESPN_URL}?dates=${date}&limit=50`, {cache:'no-store'});
+      if(r.ok) return await r.json();
+    }catch(e){}
+    return null;
+  });
+
+  const results = await Promise.all(fetches);
+
+  // Merge all days into one events array
+  const allEvents = results
+    .filter(Boolean)
+    .flatMap(d => d.events || []);
+
+  return { events: allEvents };
 }
 
 function parseESPN(data){
