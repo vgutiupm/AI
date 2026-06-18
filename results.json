@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T23:04:04Z",
+  "updated": "2026-06-18T02:01:24Z",
   "results": [
     {
       "id": "k_B1",
@@ -50,6 +50,15 @@
       "status": "FT",
       "date": "2026-06-15",
       "group": "F"
+    },
+    {
+      "id": "k_I1",
+      "home": "France",
+      "away": "Senegal",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-16"
     },
     {
       "id": "espn_760432",
