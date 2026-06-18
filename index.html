@@ -196,7 +196,7 @@
     <!-- SIM TAB -->
     <div id="pane-sim" style="display:none">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:11px;color:var(--dim)">8,000 Monte Carlo runs · updates after each result</div>
+        <div style="font-size:11px;color:var(--dim)">6,000 Monte Carlo runs · all 12 groups · Match 81 bracket rule</div>
         <button class="refresh-btn" onclick="rerunSim()" id="simRunBtn"><span class="spin-icon">↻</span> Re-run</button>
       </div>
       <div class="factors">
@@ -371,20 +371,55 @@ function runGroup(g){
   return{sorted,st,res};
 }
 
-function runSimulation(n=8000){
-  const wc={},tc={};
-  Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(t=>{wc[t]=0;tc[t]=0;}));
-  for(let i=0;i<n;i++)Object.keys(GROUPS).forEach(g=>{
-    const{sorted}=runGroup(g);
-    wc[sorted[0]]=(wc[sorted[0]]||0)+1;
-    tc[sorted[2]]=(tc[sorted[2]]||0)+1;
+// Pick best 8 third-place teams across all 12 groups using FIFA tiebreak rules:
+// 1. Points  2. Goal diff  3. Goals scored  4. FIFA rank
+function getBest8Thirds(allGroupResults){
+  const thirds = Object.keys(GROUPS).map(g => {
+    const {sorted, st} = allGroupResults[g];
+    const name = sorted[2]; // 3rd place
+    return { name, group:g, ...st[name], rank: TEAMS[name]?.rank || 99 };
   });
+  thirds.sort((a,b) =>
+    b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.rank-b.rank
+  );
+  return thirds.slice(0,8); // best 8
+}
+
+// For Match 81 (SF): Winner Group D vs best 3rd from B/E/F/I/J
+// Check if any of the best 8 third-place teams is from those groups
+function getSFOpponent(best8){
+  const eligible = best8.filter(t => SF_MATCH.thirdGroups.includes(t.group));
+  return eligible.length > 0 ? eligible[0] : null; // highest ranked eligible
+}
+
+function runSimulation(n=6000){
+  const wc={}, sfOppCount={};
+  Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(t=>{wc[t]=0; sfOppCount[t]=0;}));
+
+  for(let i=0;i<n;i++){
+    // Run all 12 groups
+    const allResults={};
+    Object.keys(GROUPS).forEach(g=>{ allResults[g]=runGroup(g); });
+
+    // Count group winners
+    Object.keys(GROUPS).forEach(g=>{
+      const w=allResults[g].sorted[0];
+      wc[w]=(wc[w]||0)+1;
+    });
+
+    // Get best 8 third-place teams, then find SF opponent
+    const best8 = getBest8Thirds(allResults);
+    const sfOpp = getSFOpponent(best8);
+    if(sfOpp) sfOppCount[sfOpp.name]=(sfOppCount[sfOpp.name]||0)+1;
+  }
+
+  // Build per-group output (only show B/E/F/I/J in UI since those are relevant)
   const out={};
   Object.keys(GROUPS).forEach(g=>{
     out[g]=GROUPS[g].map(t=>({
       name:t,...TEAMS[t],
       winPct:+((wc[t]||0)/n*100).toFixed(1),
-      thirdPct:+((tc[t]||0)/n*100).toFixed(1),
+      sfOppPct:+((sfOppCount[t]||0)/n*100).toFixed(1),
     })).sort((a,b)=>b.winPct-a.winPct);
   });
   return out;
@@ -520,8 +555,10 @@ function renderProgress(){
 
 function topCandidates(){
   if(!simResults) return [];
-  return Object.keys(GROUPS).flatMap(g=>simResults[g].map(t=>({...t,group:g})))
-    .sort((a,b)=>b.thirdPct-a.thirdPct);
+  // Only groups B/E/F/I/J can produce the SF opponent (Match 81 bracket rule)
+  return SF_MATCH.thirdGroups
+    .flatMap(g=>(simResults[g]||[]).map(t=>({...t,group:g})))
+    .sort((a,b)=>b.sfOppPct-a.sfOppPct);
 }
 
 function renderTopPick(){
@@ -530,7 +567,7 @@ function renderTopPick(){
   const opp=top[0];
   document.getElementById('oppFlag').textContent=opp.flag;
   document.getElementById('oppName').textContent=opp.name==='IvoryCoast'?'Ivory Coast':opp.name;
-  document.getElementById('oppSub').textContent=`3rd in Grp ${opp.group} · ${opp.thirdPct}% chance`;
+  document.getElementById('oppSub').textContent=`3rd in Grp ${opp.group} · ${opp.sfOppPct}% chance to be in SF`;
 }
 
 function renderCandidates(){
@@ -539,8 +576,8 @@ function renderCandidates(){
   if(!top.length){el.innerHTML='<div style="color:var(--dim);font-size:13px">Running simulation…</div>';return;}
   el.innerHTML=top.map((t,i)=>{
     const color=i===0?'var(--gold)':i<=2?'var(--accent)':'var(--muted)';
-    const prev=prevSim?Object.keys(GROUPS).flatMap(g=>prevSim[g].map(p=>({...p,group:g}))).find(p=>p.name===t.name):null;
-    const diff=prev?+(t.thirdPct-prev.thirdPct).toFixed(1):null;
+    const prev=prevSim?SF_MATCH.thirdGroups.flatMap(g=>(prevSim[g]||[]).map(p=>({...p,group:g}))).find(p=>p.name===t.name):null;
+    const diff=prev?+(t.sfOppPct-prev.sfOppPct).toFixed(1):null;
     const deltaHtml=diff!==null&&Math.abs(diff)>.3
       ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
     return `<div class="cand-row">
@@ -548,9 +585,9 @@ function renderCandidates(){
       <div class="cand-info">
         <div class="cand-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name} <span style="font-size:10px;color:var(--dim)">Grp ${t.group}</span></div>
         <div class="cand-meta">⭐ ${t.starName} · Win grp: ${t.winPct}%</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.thirdPct/30*100)}%;background:${color}"></div></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.sfOppPct/30*100)}%;background:${color}"></div></div>
       </div>
-      <div class="cand-pct" style="color:${color}">${t.thirdPct}%${deltaHtml}</div>
+      <div class="cand-pct" style="color:${color}">${t.sfOppPct}%${deltaHtml}</div>
     </div>`;
   }).join('');
 }
@@ -581,13 +618,13 @@ function renderSimGroups(){
   if(!simResults){el.innerHTML='<div style="color:var(--dim);padding:20px;text-align:center">Running simulation…</div>';return;}
   const medals=['🥇','🥈','🥉','4️⃣'];
   const mcolors=['var(--gold)','var(--silver)','var(--bronze,#cd7f32)','var(--muted)'];
-  el.innerHTML=Object.keys(GROUPS).map(g=>`
+  el.innerHTML=SF_MATCH.thirdGroups.map(g=>`
     <div class="card">
       <div class="card-label">${GROUP_LABELS[g]}</div>
       <div class="group-grid">
         ${simResults[g].map((t,i)=>{
           const prev=prevSim?.[g]?.find(p=>p.name===t.name);
-          const diff=prev?+(t.thirdPct-prev.thirdPct).toFixed(1):null;
+          const diff=prev?+(t.sfOppPct-prev.sfOppPct).toFixed(1):null;
           const deltaHtml=diff!==null&&Math.abs(diff)>.3
             ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
           return `<div class="team-tile ${i===0?'leader':''}">
@@ -601,8 +638,8 @@ function renderSimGroups(){
             </div>
             <div class="pct-row"><span>Win group</span><span class="pct-val" style="color:var(--gold)">${t.winPct}%</span></div>
             <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.winPct)}%;background:var(--gold)"></div></div>
-            <div class="pct-row" style="margin-top:5px"><span>Finish 3rd</span><span class="pct-val" style="color:var(--accent)">${t.thirdPct}%${deltaHtml}</span></div>
-            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.thirdPct/.5)}%;background:var(--accent)"></div></div>
+            <div class="pct-row" style="margin-top:5px"><span>SF opponent chance</span><span class="pct-val" style="color:var(--accent)">${t.sfOppPct}%${deltaHtml}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.sfOppPct*3)}%;background:var(--accent)"></div></div>
           </div>`;
         }).join('')}
       </div>
@@ -611,7 +648,7 @@ function renderSimGroups(){
 
 function renderMatchList(){
   const el=document.getElementById('matchesList');
-  el.innerHTML=Object.keys(GROUPS).map(g=>`
+  el.innerHTML=SF_MATCH.thirdGroups.map(g=>`
     <div class="card">
       <div class="card-label">${GROUP_LABELS[g]}</div>
       ${Object.values(liveMatches).filter(m=>TEAMS[m.home]?.group===g||TEAMS[m.away]?.group===g)
@@ -637,9 +674,611 @@ function renderMatchList(){
 // ─── EMAIL ────────────────────────────────────────────────────────────────────
 async function sendEmail(triggerMatch){
   if(!userEmail||!simResults) return;
-  const top=topCandidates().slice(0,3).map(t=>`${t.flag} ${t.name==='IvoryCoast'?'Ivory Coast':t.name} (Grp ${t.group}): ${t.thirdPct}%`).join('\n');
+  const top=topCandidates().slice(0,3).map(t=>`${t.flag} ${t.name==='IvoryCoast'?'Ivory Coast':t.name} (Grp ${t.group}): ${t.sfOppPct}%`).join('\n');
   const groupSummary=Object.keys(GROUPS).map(g=>`${GROUP_LABELS[g]}: `+
-    simResults[g].map((t,i)=>`${['1st','2nd','3rd','4th'][i]} ${t.flag}${t.name==='IvoryCoast'?'Ivory Coast':t.name} — 3rd:${t.thirdPct}%`).join(' | ')
+    simResults[g].map((t,i)=>`${['1st','2nd','3rd','4th'][i]} ${t.flag}${t.name==='IvoryCoast'?'Ivory Coast':t.name} — 3rd:${t.sfOppPct}%`).join(' | ')
+  ).join('\n');
+  const matchStr=triggerMatch
+    ?`${TEAMS[triggerMatch.home]?.flag||''}${triggerMatch.home} ${triggerMatch.hg}–${triggerMatch.ag} ${triggerMatch.away}${TEAMS[triggerMatch.away]?.flag||''}`
+    :'Manual summary request';
+
+  const prompt=`Write a concise, exciting World Cup analyst email for a fan tracking who plays USA in San Francisco R32 (July 1, Levi's Stadium).
+
+NEW RESULT: ${matchStr}
+
+TOP SF OPPONENT CANDIDATES (3rd place):
+${top}
+
+GROUP BREAKDOWN:
+${groupSummary}
+
+Write with:
+- Subject starting "⚽ SF R32 Update:"
+- Punchy opener referencing the result
+- Top 3 USA opponents analysis (why each team is/isn't likely)
+- Notable group shift if any
+- Next match to watch
+- Under 220 words, energetic tone
+
+Return ONLY: {"subject":"...","body":"..."}`;
+
+  try{
+    const cr=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    const cd=await cr.json();
+    const txt=cd.content?.find(b=>b.type==='text')?.text||'{}';
+    let parsed;
+    try{parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());}
+    catch{parsed={subject:'⚽ SF R32 Update',body:txt};}
+
+    // Send via Gmail MCP
+    const gp=`Send an email via Gmail to ${userEmail}.\nSubject: ${parsed.subject}\nBody:\n${parsed.body}\n\n— SF R32 Tracker Bot\n📍 USA vs TBD · Levi's Stadium · July 1, 2026`;
+    await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,
+        messages:[{role:'user',content:gp}],
+        mcp_servers:[{type:'url',url:'https://gmailmcp.googleapis.com/mcp/v1',name:'gmail-mcp'}]})
+    });
+    const preview={subject:parsed.subject,body:(parsed.body||'').slice(0,140)+'…'};
+    lastEmailSent=preview;
+    localStorage.setItem('sf_last_email',JSON.stringify(preview));
+    renderEmailPreview();
+  }catch(e){console.error('Email error',e);}
+}
+
+async function sendNowEmail(){ await sendEmail(null); toast('📧 Summary sent!','#22c55e'); }
+
+function renderEmailPreview(){
+  const el=document.getElementById('lastEmailPreview');
+  if(!lastEmailSent){el.innerHTML='';return;}
+  el.innerHTML=`<div class="email-preview">
+    <div class="email-subj">${lastEmailSent.subject}</div>
+    <div class="email-body">${lastEmailSent.body}</div>
+  </div>`;
+}
+
+// ─── UI HELPERS ───────────────────────────────────────────────────────────────
+function showTab(id){
+  ['live','sim','matches','notify'].forEach(t=>{
+    document.getElementById('pane-'+t).style.display=t===id?'block':'none';
+    document.getElementById('tab-'+t).classList.toggle('active',t===id);
+    document.getElementById('nav-'+t).classList.toggle('active',t===id);
+  });
+}
+
+function setStatus(s){
+  const dot=document.getElementById('statusDot');
+  const txt=document.getElementById('statusText');
+  if(s==='ok'){dot.className='status-dot dot-green';txt.textContent=isLive?'🔴 Live match in progress':'Live · auto-refreshing';}
+  else if(s==='fetching'){dot.className='status-dot dot-yellow';txt.textContent='Fetching ESPN scores…';}
+  else{dot.className='status-dot dot-red';txt.textContent='ESPN unavailable · retrying…';}
+}
+
+function toast(msg,color='#22c55e'){
+  const el=document.getElementById('toast');
+  el.style.background=color; el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function saveEmail(){
+  const v=document.getElementById('emailInput').value.trim();
+  if(!v.includes('@')){toast('Enter a valid email address','#f87171');return;}
+  userEmail=v; localStorage.setItem('sf_email',v);
+  document.getElementById('emailStatusLabel').textContent='✅ Email notifications active';
+  document.getElementById('saveEmailBtn').textContent='✓ Saved';
+  document.getElementById('saveEmailBtn').className='btn btn-saved';
+  document.getElementById('sendNowBtn').style.display='block';
+  toast('✅ Email saved — you\'ll get updates automatically!');
+}
+
+function rerunSim(){
+  const btn=document.getElementById('simRunBtn');
+  btn.classList.add('spinning');
+  setTimeout(()=>{
+    prevSim=simResults;
+    simResults=runSimulation();
+    renderAll();
+    btn.classList.remove('spinning');
+    toast('✅ Sim refreshed','#3b82f6');
+  },40);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init(){
+  // Register service worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+
+  // Restore email
+  if(userEmail){
+    document.getElementById('emailInput').value=userEmail;
+    document.getElementById('emailStatusLabel').textContent='✅ Email notifications active';
+    document.getElementById('saveEmailBtn').textContent='✓ Saved';
+    document.getElementById('saveEmailBtn').className='btn btn-saved';
+    document.getElementById('sendNowBtn').style.display='block';
+  }
+  renderEmailPreview();
+
+  // Run initial sim — results load from results.json via fetchAndUpdate below
+  simResults=runSimulation();
+  renderAll();
+
+  // Start fetching
+  fetchAndUpdate();
+  setInterval(()=>{
+    const now=new Date();
+    const h=now.getUTCHours();
+    // Poll more frequently during typical match windows (14:00–04:00 UTC)
+    if(h>=14||h<=4) fetchAndUpdate();
+  }, 90000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>// results.json is auto-committed to this repo by GitHub Actions every 30 min
+const RESULTS_URL = './results.json';
+
+// ─── ALL 12 GROUPS ──────────────────────────────────────────────────────────
+// FIFA ranks & strength data for all 48 teams
+const TEAMS = {
+  // GROUP A
+  Mexico:       {flag:"🇲🇽",rank:16, opta:3.2, form:1.08,ped:1.05,star:1.06,starName:"S. Giménez",   group:"A"},
+  SouthAfrica:  {flag:"🇿🇦",rank:56, opta:0.4, form:1.00,ped:0.65,star:1.00,starName:"R. de Reuck",   group:"A"},
+  KoreaRepublic:{flag:"🇰🇷",rank:22, opta:1.4, form:1.05,ped:0.85,star:1.05,starName:"Son Heung-min", group:"A"},
+  Czechia:      {flag:"🇨🇿",rank:37, opta:0.6, form:1.00,ped:0.75,star:1.01,starName:"T. Souček",     group:"A"},
+  // GROUP B
+  Canada:       {flag:"🇨🇦",rank:40, opta:0.52,form:1.05,ped:0.80,star:1.06,starName:"A. Davies",     group:"B"},
+  Switzerland:  {flag:"🇨🇭",rank:18, opta:1.8, form:1.04,ped:0.88,star:1.04,starName:"G. Xhaka",      group:"B"},
+  Bosnia:       {flag:"🇧🇦",rank:55, opta:0.4, form:1.02,ped:0.60,star:1.02,starName:"E. Džeko",      group:"B"},
+  Qatar:        {flag:"🇶🇦",rank:58, opta:0.1, form:0.90,ped:0.45,star:0.95,starName:"A. Afif",       group:"B"},
+  // GROUP C
+  Spain:        {flag:"🇪🇸",rank:1,  opta:14.0,form:1.15,ped:1.35,star:1.16,starName:"L. Yamal",      group:"C"},
+  Brazil:       {flag:"🇧🇷",rank:5,  opta:9.5, form:1.10,ped:1.30,star:1.12,starName:"Vinícius Jr",   group:"C"},
+  Croatia:      {flag:"🇭🇷",rank:11, opta:2.5, form:1.06,ped:1.00,star:1.06,starName:"L. Modrić",     group:"C"},
+  Morocco:      {flag:"🇲🇦",rank:14, opta:2.0, form:1.06,ped:0.85,star:1.06,starName:"H. Ziyech",     group:"C"},
+  // GROUP D
+  USA:          {flag:"🇺🇸",rank:15, opta:3.8, form:1.10,ped:0.85,star:1.08,starName:"C. Pulisic",    group:"D"},
+  Paraguay:     {flag:"🇵🇾",rank:53, opta:0.5, form:1.00,ped:0.70,star:1.00,starName:"M. Alonso",     group:"D"},
+  Australia:    {flag:"🇦🇺",rank:25, opta:1.0, form:1.04,ped:0.78,star:1.03,starName:"M. Leckie",     group:"D"},
+  Turkey:       {flag:"🇹🇷",rank:29, opta:1.2, form:1.03,ped:0.75,star:1.04,starName:"H. Çalhanoğlu", group:"D"},
+  // GROUP E
+  Germany:      {flag:"🇩🇪",rank:9,  opta:5.1, form:1.12,ped:1.20,star:1.10,starName:"J. Musiala",    group:"E"},
+  Ecuador:      {flag:"🇪🇨",rank:23, opta:1.1, form:1.03,ped:0.78,star:1.03,starName:"E. Valencia",   group:"E"},
+  IvoryCoast:   {flag:"🇨🇮",rank:42, opta:0.6, form:1.02,ped:0.72,star:1.04,starName:"S. Kessie",     group:"E"},
+  Curacao:      {flag:"🇨🇼",rank:82, opta:0.0, form:0.85,ped:0.20,star:0.90,starName:"Bonevacia",     group:"E"},
+  // GROUP F
+  Netherlands:  {flag:"🇳🇱",rank:7,  opta:3.6, form:1.08,ped:1.10,star:1.09,starName:"V. van Dijk",   group:"F"},
+  Japan:        {flag:"🇯🇵",rank:21, opta:1.5, form:1.07,ped:0.85,star:1.07,starName:"T. Kubo",       group:"F"},
+  Sweden:       {flag:"🇸🇪",rank:31, opta:0.8, form:1.03,ped:0.88,star:1.03,starName:"V. Gyökeres",   group:"F"},
+  Tunisia:      {flag:"🇹🇳",rank:36, opta:0.3, form:0.98,ped:0.62,star:1.00,starName:"Msakni",        group:"F"},
+  // GROUP G
+  Portugal:     {flag:"🇵🇹",rank:6,  opta:6.0, form:1.10,ped:1.15,star:1.12,starName:"C. Ronaldo",    group:"G"},
+  Belgium:      {flag:"🇧🇪",rank:4,  opta:7.0, form:1.10,ped:1.05,star:1.12,starName:"K. De Bruyne",  group:"G"},
+  Colombia:     {flag:"🇨🇴",rank:13, opta:2.0, form:1.07,ped:0.85,star:1.07,starName:"L. Díaz",       group:"G"},
+  Haiti:        {flag:"🇭🇹",rank:83, opta:0.0, form:0.85,ped:0.20,star:0.90,starName:"N. Laguerre",   group:"G"},
+  // GROUP H
+  England:      {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",rank:5,  opta:9.0, form:1.12,ped:1.10,star:1.13,starName:"J. Bellingham",  group:"H"},
+  Uruguay:      {flag:"🇺🇾",rank:17, opta:2.2, form:1.06,ped:1.05,star:1.07,starName:"D. Núñez",      group:"H"},
+  Scotland:     {flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",rank:38, opta:0.8, form:1.02,ped:0.75,star:1.02,starName:"A. Robertson",   group:"H"},
+  Panama:       {flag:"🇵🇦",rank:72, opta:0.1, form:0.90,ped:0.42,star:0.92,starName:"A. Figuera",    group:"H"},
+  // GROUP I
+  France:       {flag:"🇫🇷",rank:3,  opta:13.0,form:1.15,ped:1.30,star:1.14,starName:"Mbappé",        group:"I"},
+  Senegal:      {flag:"🇸🇳",rank:19, opta:1.2, form:1.05,ped:0.80,star:1.06,starName:"S. Mané",       group:"I"},
+  Norway:       {flag:"🇳🇴",rank:33, opta:2.1, form:1.18,ped:0.72,star:1.20,starName:"E. Haaland",    group:"I"},
+  Iraq:         {flag:"🇮🇶",rank:65, opta:0.1, form:0.92,ped:0.38,star:0.92,starName:"A. Hussein",    group:"I"},
+  // GROUP J
+  Argentina:    {flag:"🇦🇷",rank:2,  opta:10.4,form:1.13,ped:1.35,star:1.15,starName:"L. Messi",      group:"J"},
+  Austria:      {flag:"🇦🇹",rank:24, opta:1.0, form:1.06,ped:0.82,star:1.05,starName:"M. Sabitzer",   group:"J"},
+  Algeria:      {flag:"🇩🇿",rank:35, opta:0.7, form:1.04,ped:0.70,star:1.04,starName:"S. Benrahma",   group:"J"},
+  Jordan:       {flag:"🇯🇴",rank:66, opta:0.0, form:0.95,ped:0.25,star:0.93,starName:"Y. Al Naimat",  group:"J"},
+  // GROUP K
+  Iran:         {flag:"🇮🇷",rank:20, opta:1.3, form:1.04,ped:0.75,star:1.04,starName:"M. Taremi",     group:"K"},
+  SaudiArabia:  {flag:"🇸🇦",rank:56, opta:0.4, form:1.00,ped:0.70,star:1.00,starName:"S. Al-Dawsari", group:"K"},
+  Ghana:        {flag:"🇬🇭",rank:60, opta:0.3, form:0.98,ped:0.68,star:0.99,starName:"M. Kudus",      group:"K"},
+  Uzbekistan:   {flag:"🇺🇿",rank:74, opta:0.1, form:0.92,ped:0.20,star:0.93,starName:"O. Shomurodov",  group:"K"},
+  // GROUP L
+  Egypt:        {flag:"🇪🇬",rank:34, opta:0.8, form:1.02,ped:0.75,star:1.04,starName:"M. Salah",      group:"L"},
+  DRCongo:      {flag:"🇨🇩",rank:45, opta:0.5, form:1.00,ped:0.65,star:1.01,starName:"C. Banza",      group:"L"},
+  NewZealand:   {flag:"🇳🇿",rank:95, opta:0.1, form:0.88,ped:0.35,star:0.90,starName:"C. Wood",       group:"L"},
+  CapeVerde:    {flag:"🇨🇻",rank:73, opta:0.2, form:0.96,ped:0.28,star:0.95,starName:"G. Benchimol",  group:"L"},
+};
+
+const GROUPS = {
+  A:["Mexico","SouthAfrica","KoreaRepublic","Czechia"],
+  B:["Canada","Switzerland","Bosnia","Qatar"],
+  C:["Spain","Brazil","Croatia","Morocco"],
+  D:["USA","Paraguay","Australia","Turkey"],
+  E:["Germany","Ecuador","IvoryCoast","Curacao"],
+  F:["Netherlands","Japan","Sweden","Tunisia"],
+  G:["Portugal","Belgium","Colombia","Haiti"],
+  H:["England","Uruguay","Scotland","Panama"],
+  I:["France","Senegal","Norway","Iraq"],
+  J:["Argentina","Austria","Algeria","Jordan"],
+  K:["Iran","SaudiArabia","Ghana","Uzbekistan"],
+  L:["Egypt","DRCongo","NewZealand","CapeVerde"],
+};
+const GROUP_LABELS = {
+  A:"Group A",B:"Group B",C:"Group C",D:"Group D",
+  E:"Group E",F:"Group F",G:"Group G",H:"Group H",
+  I:"Group I",J:"Group J",K:"Group K",L:"Group L",
+};
+
+// Match 81: Winner Group D (USA) vs Best 3rd from Groups B/E/F/I/J
+// Source: FIFA official bracket (Wikipedia 2026 WC knockout stage)
+const SF_MATCH = { winnerGroup:"D", thirdGroups:["B","E","F","I","J"] };
+
+// ─── SIMULATION ───────────────────────────────────────────────────────────────
+function teamStrength(name) {
+  const t = TEAMS[name]; if(!t) return .5;
+  const rs = Math.max(.05, 1.2 - t.rank/90);
+  const os = Math.sqrt(t.opta/16);
+  const base = rs*.40 + os*.35 + (t.ped*.10-.08);
+  const dyn = getDynForm(name);
+  return base * t.form * t.star * dyn;
+}
+
+function getDynForm(name) {
+  let pts=0,played=0;
+  Object.values(liveMatches).filter(m=>m.status==='FT').forEach(m=>{
+    if(m.home===name||m.away===name){
+      played++;
+      const isHome=m.home===name;
+      const gs=isHome?m.hg:m.ag, gc=isHome?m.ag:m.hg;
+      if(gs>gc)pts+=3; else if(gs===gc)pts+=1;
+    }
+  });
+  if(!played) return 1.0;
+  const ppg=pts/played;
+  const t=TEAMS[name];
+  const exp=(1.2-t.rank/100)*1.8;
+  return Math.max(.6, Math.min(1.5,(ppg+.5)/(exp+.5)*.85+.15));
+}
+
+function poisson(lam){
+  lam=Math.max(.3,lam);
+  let L=Math.exp(-lam),k=0,p=1;
+  do{k++;p*=Math.random();}while(p>L);
+  return k-1;
+}
+
+function simMatch(a,b){
+  const sa=teamStrength(a),sb=teamStrength(b),tot=sa+sb;
+  return{hg:poisson(sa/tot*2.3),ag:poisson(sb/tot*2.3)};
+}
+
+function runGroup(g){
+  const ns=GROUPS[g],st={};
+  ns.forEach(n=>{st[n]={pts:0,gf:0,ga:0,gd:0,w:0,d:0,l:0};});
+  const res=[];
+  for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+    const A=ns[i],B=ns[j];
+    const live=Object.values(liveMatches).find(m=>
+      m.status==='FT'&&((m.home===A&&m.away===B)||(m.home===B&&m.away===A)));
+    let hg,ag;
+    if(live){hg=live.home===A?live.hg:live.ag;ag=live.home===A?live.ag:live.hg;}
+    else{const s=simMatch(A,B);hg=s.hg;ag=s.ag;}
+    res.push({home:A,away:B,hg,ag,known:!!live});
+    st[A].gf+=hg;st[A].ga+=ag;st[A].gd+=hg-ag;
+    st[B].gf+=ag;st[B].ga+=hg;st[B].gd+=ag-hg;
+    if(hg>ag){st[A].pts+=3;st[A].w++;st[B].l++;}
+    else if(hg<ag){st[B].pts+=3;st[B].w++;st[A].l++;}
+    else{st[A].pts++;st[B].pts++;st[A].d++;st[B].d++;}
+  }
+  const sorted=ns.slice().sort((a,b)=>st[b].pts-st[a].pts||st[b].gd-st[a].gd||st[b].gf-st[a].gf);
+  return{sorted,st,res};
+}
+
+// Pick best 8 third-place teams across all 12 groups using FIFA tiebreak rules:
+// 1. Points  2. Goal diff  3. Goals scored  4. FIFA rank
+function getBest8Thirds(allGroupResults){
+  const thirds = Object.keys(GROUPS).map(g => {
+    const {sorted, st} = allGroupResults[g];
+    const name = sorted[2]; // 3rd place
+    return { name, group:g, ...st[name], rank: TEAMS[name]?.rank || 99 };
+  });
+  thirds.sort((a,b) =>
+    b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.rank-b.rank
+  );
+  return thirds.slice(0,8); // best 8
+}
+
+// For Match 81 (SF): Winner Group D vs best 3rd from B/E/F/I/J
+// Check if any of the best 8 third-place teams is from those groups
+function getSFOpponent(best8){
+  const eligible = best8.filter(t => SF_MATCH.thirdGroups.includes(t.group));
+  return eligible.length > 0 ? eligible[0] : null; // highest ranked eligible
+}
+
+function runSimulation(n=6000){
+  const wc={}, sfOppCount={};
+  Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(t=>{wc[t]=0; sfOppCount[t]=0;}));
+
+  for(let i=0;i<n;i++){
+    // Run all 12 groups
+    const allResults={};
+    Object.keys(GROUPS).forEach(g=>{ allResults[g]=runGroup(g); });
+
+    // Count group winners
+    Object.keys(GROUPS).forEach(g=>{
+      const w=allResults[g].sorted[0];
+      wc[w]=(wc[w]||0)+1;
+    });
+
+    // Get best 8 third-place teams, then find SF opponent
+    const best8 = getBest8Thirds(allResults);
+    const sfOpp = getSFOpponent(best8);
+    if(sfOpp) sfOppCount[sfOpp.name]=(sfOppCount[sfOpp.name]||0)+1;
+  }
+
+  // Build per-group output (only show B/E/F/I/J in UI since those are relevant)
+  const out={};
+  Object.keys(GROUPS).forEach(g=>{
+    out[g]=GROUPS[g].map(t=>({
+      name:t,...TEAMS[t],
+      winPct:+((wc[t]||0)/n*100).toFixed(1),
+      sfOppPct:+((sfOppCount[t]||0)/n*100).toFixed(1),
+    })).sort((a,b)=>b.winPct-a.winPct);
+  });
+  return out;
+}
+
+// ─── ESPN FETCH ───────────────────────────────────────────────────────────────
+const RESULTS_URL = './results.json';
+
+async function fetchResultsJson(){
+  // Read results.json — committed to this repo by GitHub Actions every 30 min
+  try{
+    const r = await fetch(RESULTS_URL + '?t=' + Date.now(), {cache:'no-store'});
+    if(r.ok) return await r.json();
+  }catch(e){ console.error('results.json fetch failed', e); }
+  return null;
+}
+
+function parseESPN(data){
+  if(!data?.events) return {};
+  const results={};
+  data.events.forEach(ev=>{
+    const comp=ev.competitions?.[0];
+    if(!comp) return;
+    const competitors=comp.competitors||[];
+    if(competitors.length<2) return;
+
+    const home=competitors.find(c=>c.homeAway==='home');
+    const away=competitors.find(c=>c.homeAway==='away');
+    if(!home||!away) return;
+
+    const hName=ESPN_MAP[home.team?.displayName?.toLowerCase()]||null;
+    const aName=ESPN_MAP[away.team?.displayName?.toLowerCase()]||null;
+    // Only care about our groups
+    if(!hName||!aName) return;
+    const t=TEAMS[hName];
+    if(!t||!['B','E','F','I','J'].includes(t.group)) return;
+
+    const status=ev.status?.type?.state; // 'pre','in','post'
+    const completed=ev.status?.type?.completed;
+    const hScore=parseInt(home.score)||0;
+    const aScore=parseInt(away.score)||0;
+    const id=ev.id;
+    const clock=ev.status?.displayClock||'';
+    const period=ev.status?.period||0;
+
+    results[id]={
+      id, home:hName, away:aName,
+      hg:hScore, ag:aScore,
+      status: completed?'FT': status==='in'?'LIVE':'PRE',
+      clock, period,
+      date: ev.date,
+    };
+  });
+  return results;
+}
+
+let prevMatchSnapshot = {};
+
+async function fetchAndUpdate(){
+  setStatus('fetching');
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+
+  const data = await fetchResultsJson();
+  btn.classList.remove('spinning');
+
+  if(!data){ setStatus('error'); return; }
+
+  // Parse results.json format → same structure as liveMatches
+  const fresh = {};
+  (data.results || []).forEach(r => { fresh[r.id] = r; });
+
+  document.getElementById('lastFetch').textContent =
+    'Updated ' + (data.updated ? new Date(data.updated).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : 'now');
+
+  // Detect newly finished matches (compare against previous snapshot)
+  const newlyFinished=[];
+  Object.entries(fresh).forEach(([id,m])=>{
+    const prev=prevMatchSnapshot[id];
+    if(m.status==='FT'&&(!prev||prev.status!=='FT')){
+      newlyFinished.push(m);
+    }
+  });
+
+  const hasLive=Object.values(fresh).some(m=>m.status==='LIVE');
+  isLive=hasLive;
+
+  prevMatchSnapshot={...liveMatches, ...fresh};
+  // MERGE: preserve seeded known results, overlay with ESPN data
+  liveMatches={...liveMatches, ...fresh};
+
+  // Re-run sim if any match newly finished
+  if(newlyFinished.length>0){
+    prevSim=simResults;
+    simResults=runSimulation();
+    renderAll();
+    // Send email for each new result
+    for(const m of newlyFinished){
+      if(userEmail) await sendEmail(m);
+    }
+    toast(`✅ ${newlyFinished.map(m=>`${TEAMS[m.home]?.flag||''}${m.hg}–${m.ag}${TEAMS[m.away]?.flag||''}`).join(' ')} — sim updated!`, '#22c55e');
+  } else {
+    renderAll();
+  }
+
+  setStatus('ok');
+  document.getElementById('lastFetch').textContent = 'Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  adjustPollInterval(hasLive);
+}
+
+function adjustPollInterval(live){
+  if(fetchInterval) clearInterval(fetchInterval);
+  const delay = live ? 30000 : 180000; // 30s when live, 3min otherwise
+  fetchInterval = setInterval(fetchAndUpdate, delay);
+}
+
+// ─── RENDERING ───────────────────────────────────────────────────────────────
+function renderAll(){
+  renderProgress();
+  renderTopPick();
+  renderCandidates();
+  renderLiveResults();
+  renderSimGroups();
+  renderMatchList();
+}
+
+function renderProgress(){
+  const total=Object.keys(GROUPS).reduce((s,g)=>s+GROUPS[g].length*(GROUPS[g].length-1)/2,0);
+  const done=Object.values(liveMatches).filter(m=>m.status==='FT').length;
+  document.getElementById('progressFill').style.width=(done/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`${done}/${total}`;
+}
+
+function topCandidates(){
+  if(!simResults) return [];
+  // Only groups B/E/F/I/J can produce the SF opponent (Match 81 bracket rule)
+  return SF_MATCH.thirdGroups
+    .flatMap(g=>(simResults[g]||[]).map(t=>({...t,group:g})))
+    .sort((a,b)=>b.sfOppPct-a.sfOppPct);
+}
+
+function renderTopPick(){
+  const top=topCandidates();
+  if(!top.length) return;
+  const opp=top[0];
+  document.getElementById('oppFlag').textContent=opp.flag;
+  document.getElementById('oppName').textContent=opp.name==='IvoryCoast'?'Ivory Coast':opp.name;
+  document.getElementById('oppSub').textContent=`3rd in Grp ${opp.group} · ${opp.sfOppPct}% chance to be in SF`;
+}
+
+function renderCandidates(){
+  const top=topCandidates().slice(0,5);
+  const el=document.getElementById('candidatesList');
+  if(!top.length){el.innerHTML='<div style="color:var(--dim);font-size:13px">Running simulation…</div>';return;}
+  el.innerHTML=top.map((t,i)=>{
+    const color=i===0?'var(--gold)':i<=2?'var(--accent)':'var(--muted)';
+    const prev=prevSim?SF_MATCH.thirdGroups.flatMap(g=>(prevSim[g]||[]).map(p=>({...p,group:g}))).find(p=>p.name===t.name):null;
+    const diff=prev?+(t.sfOppPct-prev.sfOppPct).toFixed(1):null;
+    const deltaHtml=diff!==null&&Math.abs(diff)>.3
+      ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
+    return `<div class="cand-row">
+      <div class="cand-flag">${t.flag}</div>
+      <div class="cand-info">
+        <div class="cand-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name} <span style="font-size:10px;color:var(--dim)">Grp ${t.group}</span></div>
+        <div class="cand-meta">⭐ ${t.starName} · Win grp: ${t.winPct}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.sfOppPct/30*100)}%;background:${color}"></div></div>
+      </div>
+      <div class="cand-pct" style="color:${color}">${t.sfOppPct}%${deltaHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLiveResults(){
+  const el=document.getElementById('liveResultsList');
+  const relevant=Object.values(liveMatches)
+    .filter(m=>['FT','LIVE'].includes(m.status))
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .slice(0,10);
+  if(!relevant.length){el.innerHTML='<div style="color:var(--dim);font-size:13px;padding:4px 0">No results yet from Groups B/E/F/I/J</div>';return;}
+  el.innerHTML=relevant.map(m=>{
+    const ht=TEAMS[m.home],at=TEAMS[m.away];
+    const isLiveM=m.status==='LIVE';
+    const scoreColor=isLiveM?'var(--green)':'var(--gold)';
+    const clockStr=isLiveM?`<span class="live-dot"></span>${m.clock}'`:'FT';
+    return `<div class="match-row">
+      <div class="match-date" style="color:${isLiveM?'var(--green)':'var(--dim)'}">${clockStr}</div>
+      <div class="match-home">${ht?.flag||''} ${m.home==='IvoryCoast'?'Ivory Coast':m.home}</div>
+      <div class="match-score" style="color:${scoreColor}">${m.hg}–${m.ag}</div>
+      <div class="match-away">${m.away==='IvoryCoast'?'Ivory Coast':m.away} ${at?.flag||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSimGroups(){
+  const el=document.getElementById('simGroups');
+  if(!simResults){el.innerHTML='<div style="color:var(--dim);padding:20px;text-align:center">Running simulation…</div>';return;}
+  const medals=['🥇','🥈','🥉','4️⃣'];
+  const mcolors=['var(--gold)','var(--silver)','var(--bronze,#cd7f32)','var(--muted)'];
+  el.innerHTML=SF_MATCH.thirdGroups.map(g=>`
+    <div class="card">
+      <div class="card-label">${GROUP_LABELS[g]}</div>
+      <div class="group-grid">
+        ${simResults[g].map((t,i)=>{
+          const prev=prevSim?.[g]?.find(p=>p.name===t.name);
+          const diff=prev?+(t.sfOppPct-prev.sfOppPct).toFixed(1):null;
+          const deltaHtml=diff!==null&&Math.abs(diff)>.3
+            ?`<span class="delta ${diff>0?'up':'dn'}">${diff>0?'↑':'↓'}${Math.abs(diff)}</span>`:'';
+          return `<div class="team-tile ${i===0?'leader':''}">
+            <div class="tile-top">
+              <span style="font-size:10px;color:${mcolors[i]}">${medals[i]}</span>
+              <span class="tile-flag">${t.flag}</span>
+              <div>
+                <div class="tile-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name}</div>
+                <div class="tile-star">⭐ ${t.starName}</div>
+              </div>
+            </div>
+            <div class="pct-row"><span>Win group</span><span class="pct-val" style="color:var(--gold)">${t.winPct}%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.winPct)}%;background:var(--gold)"></div></div>
+            <div class="pct-row" style="margin-top:5px"><span>SF opponent chance</span><span class="pct-val" style="color:var(--accent)">${t.sfOppPct}%${deltaHtml}</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,t.sfOppPct*3)}%;background:var(--accent)"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderMatchList(){
+  const el=document.getElementById('matchesList');
+  el.innerHTML=SF_MATCH.thirdGroups.map(g=>`
+    <div class="card">
+      <div class="card-label">${GROUP_LABELS[g]}</div>
+      ${Object.values(liveMatches).filter(m=>TEAMS[m.home]?.group===g||TEAMS[m.away]?.group===g)
+        .sort((a,b)=>new Date(a.date)-new Date(b.date))
+        .map(m=>{
+          const ht=TEAMS[m.home],at=TEAMS[m.away];
+          const isLiveM=m.status==='LIVE';
+          const isPre=m.status==='PRE';
+          return `<div class="match-row">
+            <div class="match-date" style="color:${isLiveM?'var(--green)':isPre?'var(--dim)':'var(--dim)'}">
+              ${isLiveM?`<span class="live-dot"></span>${m.clock}'`:m.status==='FT'?'FT':new Date(m.date).toLocaleDateString([],{month:'short',day:'numeric'})}
+            </div>
+            <div class="match-home">${ht?.flag||''} ${m.home==='IvoryCoast'?'Ivory Coast':m.home}</div>
+            ${isPre
+              ?`<div class="match-pending">vs</div>`
+              :`<div class="match-score" style="color:${isLiveM?'var(--green)':'var(--gold)'}">${m.hg}–${m.ag}</div>`}
+            <div class="match-away">${m.away==='IvoryCoast'?'Ivory Coast':m.away} ${at?.flag||''}</div>
+          </div>`;
+        }).join('')}
+    </div>`).join('');
+}
+
+// ─── EMAIL ────────────────────────────────────────────────────────────────────
+async function sendEmail(triggerMatch){
+  if(!userEmail||!simResults) return;
+  const top=topCandidates().slice(0,3).map(t=>`${t.flag} ${t.name==='IvoryCoast'?'Ivory Coast':t.name} (Grp ${t.group}): ${t.sfOppPct}%`).join('\n');
+  const groupSummary=Object.keys(GROUPS).map(g=>`${GROUP_LABELS[g]}: `+
+    simResults[g].map((t,i)=>`${['1st','2nd','3rd','4th'][i]} ${t.flag}${t.name==='IvoryCoast'?'Ivory Coast':t.name} — 3rd:${t.sfOppPct}%`).join(' | ')
   ).join('\n');
   const matchStr=triggerMatch
     ?`${TEAMS[triggerMatch.home]?.flag||''}${triggerMatch.home} ${triggerMatch.hg}–${triggerMatch.ag} ${triggerMatch.away}${TEAMS[triggerMatch.away]?.flag||''}`
