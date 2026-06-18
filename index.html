@@ -701,27 +701,128 @@ function renderSimGroups(){
 
 function renderMatchList(){
   const el=document.getElementById('matchesList');
-  el.innerHTML=SF_MATCH.thirdGroups.map(g=>`
-    <div class="card">
-      <div class="card-label">${GROUP_LABELS[g]}</div>
-      ${Object.values(liveMatches).filter(m=>TEAMS[m.home]?.group===g||TEAMS[m.away]?.group===g)
-        .sort((a,b)=>new Date(a.date)-new Date(b.date))
-        .map(m=>{
-          const ht=TEAMS[m.home],at=TEAMS[m.away];
-          const isLiveM=m.status==='LIVE';
-          const isPre=m.status==='PRE';
-          return `<div class="match-row">
-            <div class="match-date" style="color:${isLiveM?'var(--green)':isPre?'var(--dim)':'var(--dim)'}">
-              ${isLiveM?`<span class="live-dot"></span>${m.clock}'`:m.status==='FT'?'FT':new Date(m.date).toLocaleDateString([],{month:'short',day:'numeric'})}
-            </div>
-            <div class="match-home">${ht?.flag||''} ${m.home==='IvoryCoast'?'Ivory Coast':m.home}</div>
-            ${isPre
-              ?`<div class="match-pending">vs</div>`
-              :`<div class="match-score" style="color:${isLiveM?'var(--green)':'var(--gold)'}">${m.hg}–${m.ag}</div>`}
-            <div class="match-away">${m.away==='IvoryCoast'?'Ivory Coast':m.away} ${at?.flag||''}</div>
-          </div>`;
-        }).join('')}
-    </div>`).join('');
+
+  // Full fixture list for all 12 groups
+  const ALL_FIXTURES = [
+    // GROUP A
+    {home:"Mexico",      away:"SouthAfrica",  date:"Jun 11", group:"A"},
+    {home:"KoreaRepublic",away:"Czechia",     date:"Jun 11", group:"A"},
+    {home:"Czechia",     away:"SouthAfrica",  date:"Jun 18", group:"A"},
+    {home:"Mexico",      away:"KoreaRepublic",date:"Jun 18", group:"A"},
+    {home:"Czechia",     away:"Mexico",       date:"Jun 24", group:"A"},
+    {home:"SouthAfrica", away:"KoreaRepublic",date:"Jun 24", group:"A"},
+    // GROUP B
+    {home:"Canada",      away:"Bosnia",       date:"Jun 12", group:"B"},
+    {home:"Qatar",       away:"Switzerland",  date:"Jun 13", group:"B"},
+    {home:"Canada",      away:"Qatar",        date:"Jun 18", group:"B"},
+    {home:"Switzerland", away:"Bosnia",       date:"Jun 18", group:"B"},
+    {home:"Switzerland", away:"Canada",       date:"Jun 25", group:"B"},
+    {home:"Bosnia",      away:"Qatar",        date:"Jun 25", group:"B"},
+    // GROUP C
+    {home:"Spain",       away:"Brazil",       date:"Jun 12", group:"C"},
+    {home:"Croatia",     away:"Morocco",      date:"Jun 13", group:"C"},
+    {home:"Spain",       away:"Croatia",      date:"Jun 19", group:"C"},
+    {home:"Morocco",     away:"Brazil",       date:"Jun 19", group:"C"},
+    {home:"Morocco",     away:"Spain",        date:"Jun 25", group:"C"},
+    {home:"Brazil",      away:"Croatia",      date:"Jun 25", group:"C"},
+    // GROUP D
+    {home:"USA",         away:"Paraguay",     date:"Jun 12", group:"D"},
+    {home:"Australia",   away:"Turkey",       date:"Jun 13", group:"D"},
+    {home:"USA",         away:"Australia",    date:"Jun 18", group:"D"},
+    {home:"Turkey",      away:"Paraguay",     date:"Jun 19", group:"D"},
+    {home:"Turkey",      away:"USA",          date:"Jun 26", group:"D"},
+    {home:"Paraguay",    away:"Australia",    date:"Jun 26", group:"D"},
+    // GROUP E
+    {home:"Germany",     away:"Curacao",      date:"Jun 14", group:"E"},
+    {home:"IvoryCoast",  away:"Ecuador",      date:"Jun 14", group:"E"},
+    {home:"Germany",     away:"IvoryCoast",   date:"Jun 20", group:"E"},
+    {home:"Ecuador",     away:"Curacao",      date:"Jun 20", group:"E"},
+    {home:"Ecuador",     away:"Germany",      date:"Jun 26", group:"E"},
+    {home:"Curacao",     away:"IvoryCoast",   date:"Jun 26", group:"E"},
+    // GROUP F
+    {home:"Netherlands", away:"Japan",        date:"Jun 14", group:"F"},
+    {home:"Sweden",      away:"Tunisia",      date:"Jun 15", group:"F"},
+    {home:"Netherlands", away:"Sweden",       date:"Jun 20", group:"F"},
+    {home:"Tunisia",     away:"Japan",        date:"Jun 21", group:"F"},
+    {home:"Japan",       away:"Sweden",       date:"Jun 26", group:"F"},
+    {home:"Tunisia",     away:"Netherlands",  date:"Jun 26", group:"F"},
+    // GROUP G
+    {home:"Portugal",    away:"Colombia",     date:"Jun 15", group:"G"},
+    {home:"Belgium",     away:"Haiti",        date:"Jun 15", group:"G"},
+    {home:"Belgium",     away:"Portugal",     date:"Jun 21", group:"G"},
+    {home:"Colombia",    away:"Haiti",        date:"Jun 21", group:"G"},
+    {home:"Colombia",    away:"Belgium",      date:"Jun 27", group:"G"},
+    {home:"Haiti",       away:"Portugal",     date:"Jun 27", group:"G"},
+    // GROUP H
+    {home:"England",     away:"Scotland",     date:"Jun 15", group:"H"},
+    {home:"Uruguay",     away:"Panama",       date:"Jun 16", group:"H"},
+    {home:"England",     away:"Uruguay",      date:"Jun 22", group:"H"},
+    {home:"Panama",      away:"Scotland",     date:"Jun 22", group:"H"},
+    {home:"Panama",      away:"England",      date:"Jun 27", group:"H"},
+    {home:"Scotland",    away:"Uruguay",      date:"Jun 27", group:"H"},
+    // GROUP I
+    {home:"France",      away:"Senegal",      date:"Jun 16", group:"I"},
+    {home:"Iraq",        away:"Norway",       date:"Jun 16", group:"I"},
+    {home:"France",      away:"Iraq",         date:"Jun 22", group:"I"},
+    {home:"Norway",      away:"Senegal",      date:"Jun 22", group:"I"},
+    {home:"Norway",      away:"France",       date:"Jun 27", group:"I"},
+    {home:"Senegal",     away:"Iraq",         date:"Jun 27", group:"I"},
+    // GROUP J
+    {home:"Argentina",   away:"Algeria",      date:"Jun 16", group:"J"},
+    {home:"Austria",     away:"Jordan",       date:"Jun 17", group:"J"},
+    {home:"Argentina",   away:"Austria",      date:"Jun 22", group:"J"},
+    {home:"Jordan",      away:"Algeria",      date:"Jun 23", group:"J"},
+    {home:"Algeria",     away:"Austria",      date:"Jun 27", group:"J"},
+    {home:"Jordan",      away:"Argentina",    date:"Jun 27", group:"J"},
+    // GROUP K
+    {home:"Iran",        away:"Uzbekistan",   date:"Jun 17", group:"K"},
+    {home:"SaudiArabia", away:"Ghana",        date:"Jun 17", group:"K"},
+    {home:"Iran",        away:"SaudiArabia",  date:"Jun 23", group:"K"},
+    {home:"Ghana",       away:"Uzbekistan",   date:"Jun 23", group:"K"},
+    {home:"Ghana",       away:"Iran",         date:"Jun 28", group:"K"},
+    {home:"Uzbekistan",  away:"SaudiArabia",  date:"Jun 28", group:"K"},
+    // GROUP L
+    {home:"Egypt",       away:"DRCongo",      date:"Jun 17", group:"L"},
+    {home:"NewZealand",  away:"CapeVerde",    date:"Jun 17", group:"L"},
+    {home:"Egypt",       away:"NewZealand",   date:"Jun 23", group:"L"},
+    {home:"CapeVerde",   away:"DRCongo",      date:"Jun 23", group:"L"},
+    {home:"CapeVerde",   away:"Egypt",        date:"Jun 28", group:"L"},
+    {home:"DRCongo",     away:"NewZealand",   date:"Jun 28", group:"L"},
+  ];
+
+  const displayName = n => ({IvoryCoast:'Ivory Coast',SouthAfrica:'South Africa',KoreaRepublic:'Korea Rep.',SaudiArabia:'Saudi Arabia',DRCongo:'DR Congo',NewZealand:'New Zealand',CapeVerde:'Cape Verde'}[n]||n);
+
+  el.innerHTML = Object.keys(GROUPS).map(g => {
+    const fixtures = ALL_FIXTURES.filter(f => f.group === g);
+    const isSFGroup = SF_MATCH.thirdGroups.includes(g);
+    return `<div class="card" style="border-color:${isSFGroup?'var(--accent)44':'var(--border)'}">
+      <div class="card-label">
+        ${GROUP_LABELS[g]}
+        ${isSFGroup?'<span style="font-size:9px;background:var(--accent)22;color:var(--accent);border:1px solid var(--accent)44;border-radius:4px;padding:1px 5px;margin-left:6px">SF eligible</span>':''}
+      </div>
+      ${fixtures.map(f => {
+        const live = Object.values(liveMatches).find(m =>
+          m.status!=='PRE' &&
+          ((m.home===f.home&&m.away===f.away)||(m.home===f.away&&m.away===f.home))
+        );
+        const ht = TEAMS[f.home], at = TEAMS[f.away];
+        const isLiveM = live?.status==='LIVE';
+        const isFT = live?.status==='FT';
+        const hg = live ? (live.home===f.home ? live.hg : live.ag) : null;
+        const ag = live ? (live.home===f.home ? live.ag : live.hg) : null;
+        return `<div class="match-row">
+          <div class="match-date" style="color:${isLiveM?'var(--green)':'var(--dim)'}">
+            ${isLiveM?`<span class="live-dot"></span>${live.clock}'`:f.date}
+          </div>
+          <div class="match-home">${ht?.flag||''} ${displayName(f.home)}</div>
+          ${isFT||isLiveM
+            ?`<div class="match-score" style="color:${isLiveM?'var(--green)':'var(--gold)'}">${hg}–${ag}</div>`
+            :`<div class="match-pending">vs</div>`}
+          <div class="match-away">${displayName(f.away)} ${at?.flag||''}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
 }
 
 // ─── EMAIL ────────────────────────────────────────────────────────────────────
