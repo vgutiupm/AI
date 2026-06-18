@@ -1,17 +1,137 @@
 {
-  "updated": "2026-06-17T12:00:00Z",
+  "updated": "2026-06-18T07:29:22Z",
   "results": [
-    {"id":"k_A1","home":"Mexico",      "away":"SouthAfrica", "hg":2,"ag":0,"status":"FT","date":"2026-06-11","group":"A"},
-    {"id":"k_A2","home":"KoreaRepublic","away":"Czechia",    "hg":2,"ag":1,"status":"FT","date":"2026-06-11","group":"A"},
-    {"id":"k_B1","home":"Canada",      "away":"Bosnia",      "hg":1,"ag":1,"status":"FT","date":"2026-06-12","group":"B"},
-    {"id":"k_D1","home":"USA",         "away":"Paraguay",    "hg":4,"ag":1,"status":"FT","date":"2026-06-12","group":"D"},
-    {"id":"k_E1","home":"Germany",     "away":"Curacao",     "hg":7,"ag":1,"status":"FT","date":"2026-06-14","group":"E"},
-    {"id":"k_E2","home":"IvoryCoast",  "away":"Ecuador",     "hg":1,"ag":0,"status":"FT","date":"2026-06-14","group":"E"},
-    {"id":"k_F1","home":"Netherlands", "away":"Japan",       "hg":2,"ag":2,"status":"FT","date":"2026-06-14","group":"F"},
-    {"id":"k_F2","home":"Sweden",      "away":"Tunisia",     "hg":5,"ag":1,"status":"FT","date":"2026-06-15","group":"F"},
-    {"id":"k_I1","home":"France",      "away":"Senegal",     "hg":3,"ag":1,"status":"FT","date":"2026-06-16","group":"I"},
-    {"id":"k_I2","home":"Iraq",        "away":"Norway",      "hg":1,"ag":4,"status":"FT","date":"2026-06-16","group":"I"},
-    {"id":"k_J1","home":"Argentina",   "away":"Algeria",     "hg":3,"ag":0,"status":"FT","date":"2026-06-16","group":"J"},
-    {"id":"k_J2","home":"Austria",     "away":"Jordan",      "hg":0,"ag":0,"status":"PRE","date":"2026-06-17","group":"J"}
+    {
+      "id": "k_A1",
+      "home": "Mexico",
+      "away": "SouthAfrica",
+      "hg": 2,
+      "ag": 0,
+      "status": "FT",
+      "date": "2026-06-11",
+      "group": "A"
+    },
+    {
+      "id": "k_A2",
+      "home": "KoreaRepublic",
+      "away": "Czechia",
+      "hg": 2,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-11",
+      "group": "A"
+    },
+    {
+      "id": "k_B1",
+      "home": "Canada",
+      "away": "Bosnia",
+      "hg": 1,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-12",
+      "group": "B"
+    },
+    {
+      "id": "k_D1",
+      "home": "USA",
+      "away": "Paraguay",
+      "hg": 4,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-12",
+      "group": "D"
+    },
+    {
+      "id": "k_E1",
+      "home": "Germany",
+      "away": "Curacao",
+      "hg": 7,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "E"
+    },
+    {
+      "id": "k_E2",
+      "home": "IvoryCoast",
+      "away": "Ecuador",
+      "hg": 1,
+      "ag": 0,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "E"
+    },
+    {
+      "id": "k_F1",
+      "home": "Netherlands",
+      "away": "Japan",
+      "hg": 2,
+      "ag": 2,
+      "status": "FT",
+      "date": "2026-06-14",
+      "group": "F"
+    },
+    {
+      "id": "k_F2",
+      "home": "Sweden",
+      "away": "Tunisia",
+      "hg": 5,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-15",
+      "group": "F"
+    },
+    {
+      "id": "k_I1",
+      "home": "France",
+      "away": "Senegal",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-16",
+      "group": "I"
+    },
+    {
+      "id": "k_I2",
+      "home": "Iraq",
+      "away": "Norway",
+      "hg": 1,
+      "ag": 4,
+      "status": "FT",
+      "date": "2026-06-16",
+      "group": "I"
+    },
+    {
+      "id": "k_J1",
+      "home": "Argentina",
+      "away": "Algeria",
+      "hg": 3,
+      "ag": 0,
+      "status": "FT",
+      "date": "2026-06-16",
+      "group": "J"
+    },
+    {
+      "id": "k_J2",
+      "home": "Austria",
+      "away": "Jordan",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "date": "2026-06-17",
+      "group": "J"
+    },
+    {
+      "id": "espn_760440",
+      "home": "Canada",
+      "away": "Qatar",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-18",
+      "group": "B"
+    }
   ]
 }
