@@ -140,6 +140,7 @@
   <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="showTab('live')" id="tab-live">⚽ Live</button>
+    <button class="tab" onclick="showTab('thirds')" id="tab-thirds">🏅 3rds</button>
     <button class="tab" onclick="showTab('sim')" id="tab-sim">📊 Sim</button>
     <button class="tab" onclick="showTab('matches')" id="tab-matches">📋 Matches</button>
     <button class="tab" onclick="showTab('notify')" id="tab-notify">🔔 Alerts</button>
@@ -191,6 +192,15 @@
         </div>
         <div id="liveResultsList"><div style="color:var(--dim);font-size:13px;padding:8px 0">Fetching from ESPN…</div></div>
       </div>
+    </div>
+
+    <!-- THIRDS TAB -->
+    <div id="pane-thirds" style="display:none">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:12px;line-height:1.6">
+        All 12 third-place teams ranked by FIFA tiebreak rules: Points → Goal Diff → Goals Scored → FIFA Rank.<br/>
+        <span style="color:var(--accent)">Top 8 advance</span> to R32. The highest-ranked from <span style="color:var(--gold)">Groups B/E/F/I/J</span> plays 🇺🇸 USA in SF.
+      </div>
+      <div id="thirdsTable"></div>
     </div>
 
     <!-- SIM TAB -->
@@ -250,6 +260,7 @@
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
     <button class="nav-btn active" onclick="showTab('live')" id="nav-live"><div class="nav-icon">⚽</div>Live</button>
+    <button class="nav-btn" onclick="showTab('thirds')" id="nav-thirds"><div class="nav-icon">🏅</div>3rds</button>
     <button class="nav-btn" onclick="showTab('sim')" id="nav-sim"><div class="nav-icon">📊</div>Sim</button>
     <button class="nav-btn" onclick="showTab('matches')" id="nav-matches"><div class="nav-icon">📋</div>Matches</button>
     <button class="nav-btn" onclick="showTab('notify')" id="nav-notify"><div class="nav-icon">🔔</div>Alerts</button>
@@ -597,6 +608,7 @@ function renderAll(){
   renderLiveResults();
   renderSimGroups();
   renderMatchList();
+  renderThirds();
 }
 
 function renderProgress(){
@@ -697,6 +709,119 @@ function renderSimGroups(){
         }).join('')}
       </div>
     </div>`).join('');
+}
+
+
+function renderThirds(){
+  const el = document.getElementById('thirdsTable');
+  if(!el) return;
+
+  // Compute actual standings for each group from liveMatches
+  const groupStandings = {};
+  Object.keys(GROUPS).forEach(g => {
+    const names = GROUPS[g];
+    const st = {};
+    names.forEach(n => { st[n] = {pts:0,gf:0,ga:0,gd:0,w:0,d:0,l:0,played:0}; });
+
+    Object.values(liveMatches).filter(m => m.status==='FT' && m.group===g).forEach(m => {
+      if(!st[m.home]||!st[m.away]) return;
+      st[m.home].played++; st[m.away].played++;
+      st[m.home].gf+=m.hg; st[m.home].ga+=m.ag; st[m.home].gd+=m.hg-m.ag;
+      st[m.away].gf+=m.ag; st[m.away].ga+=m.hg; st[m.away].gd+=m.ag-m.hg;
+      if(m.hg>m.ag){st[m.home].pts+=3;st[m.home].w++;st[m.away].l++;}
+      else if(m.hg<m.ag){st[m.away].pts+=3;st[m.away].w++;st[m.home].l++;}
+      else{st[m.home].pts++;st[m.away].pts++;st[m.home].d++;st[m.away].d++;}
+    });
+
+    // Sort group: pts → gd → gf → fifa rank
+    const sorted = names.slice().sort((a,b) =>
+      st[b].pts-st[a].pts || st[b].gd-st[a].gd || st[b].gf-st[a].gf || (TEAMS[a]?.rank||99)-(TEAMS[b]?.rank||99)
+    );
+    groupStandings[g] = { sorted, st };
+  });
+
+  // Get third-place team from each group
+  const thirds = Object.keys(GROUPS).map(g => {
+    const { sorted, st } = groupStandings[g];
+    const name = sorted[2];
+    const isSFGroup = SF_MATCH.thirdGroups.includes(g);
+    return {
+      name, group:g, isSFGroup,
+      ...st[name],
+      rank: TEAMS[name]?.rank || 99,
+      flag: TEAMS[name]?.flag || '🏳️',
+      played: st[name]?.played || 0,
+    };
+  });
+
+  // Sort by FIFA rules: pts → gd → gf → fifa rank
+  thirds.sort((a,b) =>
+    b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.rank-b.rank
+  );
+
+  const sfSlot = thirds.slice(0,8).find(t => t.isSFGroup);
+  const displayName = n => ({IvoryCoast:'Ivory Coast',SouthAfrica:'South Africa',
+    KoreaRepublic:'Korea Rep.',SaudiArabia:'Saudi Arabia',DRCongo:'DR Congo',
+    NewZealand:'New Zealand',CapeVerde:'Cape Verde'}[n]||n);
+
+  el.innerHTML = `
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#0a1525;color:var(--dim);font-size:10px">
+            <th style="padding:8px 10px;text-align:left;font-weight:600">Pos</th>
+            <th style="padding:8px 4px;text-align:left;font-weight:600">Team</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">P</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">W</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">D</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">L</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">GD</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${thirds.map((t,i) => {
+            const inBest8 = i < 8;
+            const isSF = sfSlot && t.name === sfSlot.name;
+            const rowBg = isSF ? '#0d2a12' : inBest8 ? '#0a1a2e' : 'transparent';
+            const borderLeft = isSF ? '3px solid var(--green)' : t.isSFGroup && inBest8 ? '3px solid var(--gold)' : '3px solid transparent';
+            const rankColor = i===0?'var(--gold)':i<3?'var(--silver)':i<8?'var(--accent)':'var(--muted)';
+            const gdColor = (t.gd||0)>0?'var(--green)':(t.gd||0)<0?'var(--red)':'var(--dim)';
+            return `<tr style="border-top:1px solid var(--border);background:${rowBg};border-left:${borderLeft}">
+              <td style="padding:9px 8px;color:${rankColor};font-weight:700">${i+1}</td>
+              <td style="padding:9px 4px">
+                <div style="display:flex;align-items:center;gap:5px">
+                  <span style="font-size:16px">${t.flag}</span>
+                  <div>
+                    <div style="font-weight:${inBest8?700:400};color:${inBest8?'var(--text)':'var(--dim)'}">${displayName(t.name)}</div>
+                    <div style="font-size:9px;color:var(--dim);display:flex;gap:3px;margin-top:1px">
+                      <span style="background:${t.isSFGroup?'var(--gold)22':'#1a2d4788'};color:${t.isSFGroup?'var(--gold)':'var(--dim)'};border-radius:3px;padding:0 4px">Grp ${t.group}</span>
+                      ${isSF?'<span style="background:#22c55e22;color:var(--green);border-radius:3px;padding:0 4px">→ SF vs USA</span>':''}
+                      ${inBest8&&!isSF?'<span style="background:#3b82f622;color:var(--accent);border-radius:3px;padding:0 4px">R32</span>':''}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td style="padding:9px 6px;text-align:center;color:var(--dim)">${t.played||0}</td>
+              <td style="padding:9px 6px;text-align:center">${t.w||0}</td>
+              <td style="padding:9px 6px;text-align:center">${t.d||0}</td>
+              <td style="padding:9px 6px;text-align:center">${t.l||0}</td>
+              <td style="padding:9px 6px;text-align:center;color:${gdColor}">${(t.gd||0)>0?'+':''}${t.gd||0}</td>
+              <td style="padding:9px 6px;text-align:center;font-weight:800;color:${inBest8?'var(--text)':'var(--muted)'}">${t.pts||0}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;font-size:10px">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#22c55e;border-radius:2px;display:inline-block"></span> Plays USA in SF</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--gold);border-radius:2px;display:inline-block"></span> SF-eligible group</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--accent);border-radius:2px;display:inline-block"></span> Qualifies R32</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--muted);border-radius:2px;display:inline-block"></span> Eliminated</span>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:var(--dim)">
+      Tiebreak: Points → Goal Difference → Goals Scored → FIFA Rank · Based on actual results only
+    </div>`;
 }
 
 function renderMatchList(){
@@ -895,7 +1020,7 @@ function renderEmailPreview(){
 
 // ─── UI HELPERS ───────────────────────────────────────────────────────────────
 function showTab(id){
-  ['live','sim','matches','notify'].forEach(t=>{
+  ['live','thirds','sim','matches','notify'].forEach(t=>{
     document.getElementById('pane-'+t).style.display=t===id?'block':'none';
     document.getElementById('tab-'+t).classList.toggle('active',t===id);
     document.getElementById('nav-'+t).classList.toggle('active',t===id);
