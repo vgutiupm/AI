@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T01:50:48Z",
+  "updated": "2026-06-19T02:00:18Z",
   "results": [
     {
       "id": "r_A1",
@@ -265,6 +265,18 @@
       "ag": 0,
       "status": "FT",
       "clock": "90'+10'",
+      "period": 2,
+      "date": "2026-06-18",
+      "group": "B"
+    },
+    {
+      "id": "espn_760439",
+      "home": "Switzerland",
+      "away": "Bosnia",
+      "hg": 4,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+8'",
       "period": 2,
       "date": "2026-06-18",
       "group": "B"
