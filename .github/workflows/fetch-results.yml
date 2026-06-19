@@ -24,34 +24,41 @@ jobs:
 
           ESPN_URL = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?limit=100'
 
-          # Groups we care about
-          OUR_GROUPS = {'B', 'E', 'F', 'I', 'J'}
-
-          # ESPN team name → our key
           ESPN_MAP = {
-            'canada': 'Canada', 'switzerland': 'Switzerland',
-            'bosnia and herzegovina': 'Bosnia', 'bosnia': 'Bosnia',
-            'qatar': 'Qatar', 'germany': 'Germany',
-            "côte d'ivoire": 'IvoryCoast', 'ivory coast': 'IvoryCoast',
-            'ecuador': 'Ecuador', 'curaçao': 'Curacao', 'curacao': 'Curacao',
-            'netherlands': 'Netherlands', 'japan': 'Japan',
-            'sweden': 'Sweden', 'tunisia': 'Tunisia',
-            'france': 'France', 'senegal': 'Senegal',
-            'norway': 'Norway', 'iraq': 'Iraq',
-            'argentina': 'Argentina', 'austria': 'Austria',
-            'algeria': 'Algeria', 'jordan': 'Jordan',
+            'mexico':'Mexico','south africa':'SouthAfrica','korea republic':'KoreaRepublic',
+            'south korea':'KoreaRepublic','czechia':'Czechia','czech republic':'Czechia',
+            'canada':'Canada','bosnia and herzegovina':'Bosnia','bosnia':'Bosnia',
+            'qatar':'Qatar','switzerland':'Switzerland',
+            'brazil':'Brazil','morocco':'Morocco','haiti':'Haiti','scotland':'Scotland',
+            'usa':'USA','united states':'USA','paraguay':'Paraguay','australia':'Australia','turkey':'Turkey','turkiye':'Turkey',
+            'germany':'Germany','curacao':'Curacao',
+            "cote d'ivoire":'IvoryCoast','ivory coast':'IvoryCoast','ecuador':'Ecuador',
+            'netherlands':'Netherlands','japan':'Japan','sweden':'Sweden','tunisia':'Tunisia',
+            'belgium':'Belgium','egypt':'Egypt','iran':'Iran','new zealand':'NewZealand',
+            'spain':'Spain','cape verde':'CapeVerde','cabo verde':'CapeVerde',
+            'saudi arabia':'SaudiArabia','uruguay':'Uruguay',
+            'france':'France','senegal':'Senegal','iraq':'Iraq','norway':'Norway',
+            'argentina':'Argentina','algeria':'Algeria','austria':'Austria','jordan':'Jordan',
+            'portugal':'Portugal','dr congo':'DRCongo','congo dr':'DRCongo',
+            'uzbekistan':'Uzbekistan','colombia':'Colombia',
+            'england':'England','croatia':'Croatia','ghana':'Ghana','panama':'Panama',
           }
 
-          # Team → group mapping
           TEAM_GROUP = {
-            'Canada': 'B', 'Switzerland': 'B', 'Bosnia': 'B', 'Qatar': 'B',
-            'Germany': 'E', 'IvoryCoast': 'E', 'Curacao': 'E', 'Ecuador': 'E',
-            'Netherlands': 'F', 'Japan': 'F', 'Sweden': 'F', 'Tunisia': 'F',
-            'France': 'I', 'Senegal': 'I', 'Norway': 'I', 'Iraq': 'I',
-            'Argentina': 'J', 'Austria': 'J', 'Algeria': 'J', 'Jordan': 'J',
+            'Mexico':'A','SouthAfrica':'A','KoreaRepublic':'A','Czechia':'A',
+            'Canada':'B','Bosnia':'B','Qatar':'B','Switzerland':'B',
+            'Brazil':'C','Morocco':'C','Haiti':'C','Scotland':'C',
+            'USA':'D','Paraguay':'D','Australia':'D','Turkey':'D',
+            'Germany':'E','Curacao':'E','IvoryCoast':'E','Ecuador':'E',
+            'Netherlands':'F','Japan':'F','Sweden':'F','Tunisia':'F',
+            'Belgium':'G','Egypt':'G','Iran':'G','NewZealand':'G',
+            'Spain':'H','CapeVerde':'H','SaudiArabia':'H','Uruguay':'H',
+            'France':'I','Senegal':'I','Iraq':'I','Norway':'I',
+            'Argentina':'J','Algeria':'J','Austria':'J','Jordan':'J',
+            'Portugal':'K','DRCongo':'K','Uzbekistan':'K','Colombia':'K',
+            'England':'L','Croatia':'L','Ghana':'L','Panama':'L',
           }
 
-          # Load existing results.json if it exists
           existing = {}
           if os.path.exists('results.json'):
             with open('results.json') as f:
@@ -61,43 +68,36 @@ jobs:
               except:
                 pass
 
-          # Hardcoded known results as base (in case ESPN misses anything)
-          hardcoded = [
-            {'id':'k_B1','home':'Canada',      'away':'Bosnia',      'hg':1,'ag':1,'status':'FT','date':'2026-06-12'},
-            {'id':'k_E1','home':'Germany',     'away':'Curacao',     'hg':7,'ag':1,'status':'FT','date':'2026-06-14'},
-            {'id':'k_E2','home':'IvoryCoast',  'away':'Ecuador',     'hg':1,'ag':0,'status':'FT','date':'2026-06-14'},
-            {'id':'k_F1','home':'Netherlands', 'away':'Japan',       'hg':2,'ag':2,'status':'FT','date':'2026-06-14'},
-            {'id':'k_F2','home':'Sweden',      'away':'Tunisia',     'hg':5,'ag':1,'status':'FT','date':'2026-06-15'},
-            {'id':'k_I1','home':'France',      'away':'Senegal',     'hg':3,'ag':1,'status':'FT','date':'2026-06-16'},
-          ]
+          merged = dict(existing)
 
-          merged = {r['id']: r for r in hardcoded}
-          merged.update(existing)
-
-          # Fetch from ESPN
           try:
             req = urllib.request.Request(ESPN_URL, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
               espn = json.loads(resp.read())
 
+            matched = 0
+            skipped = []
             for ev in espn.get('events', []):
               comp = ev.get('competitions', [{}])[0]
               competitors = comp.get('competitors', [])
               if len(competitors) < 2:
                 continue
-
               home = next((c for c in competitors if c.get('homeAway') == 'home'), None)
               away = next((c for c in competitors if c.get('homeAway') == 'away'), None)
               if not home or not away:
                 continue
 
-              h_name = ESPN_MAP.get(home['team']['displayName'].lower())
-              a_name = ESPN_MAP.get(away['team']['displayName'].lower())
+              h_disp = home['team']['displayName']
+              a_disp = away['team']['displayName']
+              h_name = ESPN_MAP.get(h_disp.lower())
+              a_name = ESPN_MAP.get(a_disp.lower())
+
               if not h_name or not a_name:
+                skipped.append(h_disp + ' vs ' + a_disp)
                 continue
 
               group = TEAM_GROUP.get(h_name)
-              if group not in OUR_GROUPS:
+              if not group:
                 continue
 
               status_type = ev.get('status', {}).get('type', {})
@@ -115,34 +115,44 @@ jobs:
 
               rid = 'espn_' + ev['id']
               merged[rid] = {
-                'id': rid,
-                'home': h_name,
-                'away': a_name,
+                'id': rid, 'home': h_name, 'away': a_name,
                 'hg': int(home.get('score', 0) or 0),
                 'ag': int(away.get('score', 0) or 0),
-                'status': status,
-                'clock': clock,
-                'period': period,
-                'date': ev.get('date', '')[:10],
-                'group': group,
+                'status': status, 'clock': clock, 'period': period,
+                'date': ev.get('date', '')[:10], 'group': group,
               }
+              matched += 1
 
-            print(f'ESPN fetch OK — {len(espn.get("events", []))} events')
+            print('ESPN fetch OK -- ' + str(len(espn.get('events', []))) + ' events, ' + str(matched) + ' matched')
+            if skipped:
+              print('Skipped: ' + str(skipped))
           except Exception as e:
-            print(f'ESPN fetch failed: {e}')
+            print('ESPN fetch failed: ' + str(e))
 
-          # Write results.json
-          results_list = sorted(merged.values(), key=lambda r: r.get('date', ''))
+          by_fixture = {}
+          for rid, r in merged.items():
+            key = tuple(sorted([r['home'], r['away']])) + (r['date'],)
+            if key not in by_fixture:
+              by_fixture[key] = r
+            else:
+              existing_r = by_fixture[key]
+              if rid.startswith('espn_') and r['status'] in ('FT','LIVE'):
+                by_fixture[key] = r
+              elif not existing_r['id'].startswith('espn_') and rid.startswith('espn_'):
+                by_fixture[key] = r
+
+          results_list = sorted(by_fixture.values(), key=lambda r: (r.get('date',''), r.get('group','')))
+
           output = {
             'updated': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
             'results': results_list,
           }
           with open('results.json', 'w') as f:
-            json.dump(output, f, indent=2)
+            json.dump(output, f, indent=2, ensure_ascii=False)
 
           ft = [r for r in results_list if r['status'] == 'FT']
           live = [r for r in results_list if r['status'] == 'LIVE']
-          print(f'results.json written: {len(ft)} FT, {len(live)} LIVE, {len(results_list)} total')
+          print('results.json written: ' + str(len(ft)) + ' FT, ' + str(len(live)) + ' LIVE, ' + str(len(results_list)) + ' total')
           PYEOF
 
       - name: Commit results.json if changed
@@ -155,6 +165,6 @@ jobs:
           else
             LIVE=$(python3 -c "import json; d=json.load(open('results.json')); print(len([r for r in d['results'] if r['status']=='LIVE']))")
             FT=$(python3 -c "import json; d=json.load(open('results.json')); print(len([r for r in d['results'] if r['status']=='FT']))")
-            git commit -m "⚽ Results update: ${FT} FT, ${LIVE} LIVE [$(date -u '+%H:%M UTC')]"
+            git commit -m "Results update: ${FT} FT, ${LIVE} LIVE [$(date -u '+%H:%M UTC')]"
             git push
           fi
