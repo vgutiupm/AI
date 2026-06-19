@@ -716,51 +716,58 @@ function renderThirds(){
   const el = document.getElementById('thirdsTable');
   if(!el) return;
 
-  // Compute actual standings for each group from liveMatches
-  const groupStandings = {};
+  const TEAM_GROUP = {};
+  Object.keys(GROUPS).forEach(g => GROUPS[g].forEach(t => { TEAM_GROUP[t] = g; }));
+
+  // Build standings for every group from scratch using liveMatches
+  const groupSt = {};
   Object.keys(GROUPS).forEach(g => {
-    const names = GROUPS[g];
     const st = {};
-    names.forEach(n => { st[n] = {pts:0,gf:0,ga:0,gd:0,w:0,d:0,l:0,played:0}; });
-
-    Object.values(liveMatches).filter(m => m.status==='FT' && m.group===g).forEach(m => {
-      if(!st[m.home]||!st[m.away]) return;
-      st[m.home].played++; st[m.away].played++;
-      st[m.home].gf+=m.hg; st[m.home].ga+=m.ag; st[m.home].gd+=m.hg-m.ag;
-      st[m.away].gf+=m.ag; st[m.away].ga+=m.hg; st[m.away].gd+=m.ag-m.hg;
-      if(m.hg>m.ag){st[m.home].pts+=3;st[m.home].w++;st[m.away].l++;}
-      else if(m.hg<m.ag){st[m.away].pts+=3;st[m.away].w++;st[m.home].l++;}
-      else{st[m.home].pts++;st[m.away].pts++;st[m.home].d++;st[m.away].d++;}
-    });
-
-    // Sort group: pts → gd → gf → fifa rank
-    const sorted = names.slice().sort((a,b) =>
-      st[b].pts-st[a].pts || st[b].gd-st[a].gd || st[b].gf-st[a].gf || (TEAMS[a]?.rank||99)-(TEAMS[b]?.rank||99)
-    );
-    groupStandings[g] = { sorted, st };
+    GROUPS[g].forEach(n => { st[n] = {pts:0,gf:0,ga:0,gd:0,w:0,d:0,l:0,played:0}; });
+    groupSt[g] = st;
   });
 
-  // Get third-place team from each group
+  Object.values(liveMatches).forEach(m => {
+    if(m.status !== 'FT') return;
+    const g = TEAM_GROUP[m.home];
+    if(!g) return;
+    const st = groupSt[g];
+    if(!st[m.home] || !st[m.away]) return;
+    st[m.home].played++; st[m.away].played++;
+    st[m.home].gf+=m.hg; st[m.home].ga+=m.ag; st[m.home].gd+=m.hg-m.ag;
+    st[m.away].gf+=m.ag; st[m.away].ga+=m.hg; st[m.away].gd+=m.ag-m.hg;
+    if(m.hg>m.ag){st[m.home].pts+=3;st[m.home].w++;st[m.away].l++;}
+    else if(m.hg<m.ag){st[m.away].pts+=3;st[m.away].w++;st[m.home].l++;}
+    else{st[m.home].pts++;st[m.away].pts++;st[m.home].d++;st[m.away].d++;}
+  });
+
+  // Get 3rd place from each group
   const thirds = Object.keys(GROUPS).map(g => {
-    const { sorted, st } = groupStandings[g];
+    const st = groupSt[g];
+    const sorted = GROUPS[g].slice().sort((a,b) =>
+      st[b].pts-st[a].pts || st[b].gd-st[a].gd || st[b].gf-st[a].gf ||
+      (TEAMS[a]?.rank||99)-(TEAMS[b]?.rank||99)
+    );
     const name = sorted[2];
-    const isSFGroup = SF_MATCH.thirdGroups.includes(g);
+    const s = st[name];
     return {
-      name, group:g, isSFGroup,
-      ...st[name],
-      rank: TEAMS[name]?.rank || 99,
-      flag: TEAMS[name]?.flag || '🏳️',
-      played: st[name]?.played || 0,
+      name, group:g,
+      isSFGroup: SF_MATCH.thirdGroups.includes(g),
+      pts:s.pts, gf:s.gf, ga:s.ga, gd:s.gd,
+      w:s.w, d:s.d, l:s.l, played:s.played,
+      rank: TEAMS[name]?.rank||99,
+      flag: TEAMS[name]?.flag||'🏳️',
     };
   });
 
-  // Sort by FIFA rules: pts → gd → gf → fifa rank
+  // Rank by FIFA rules: pts → gd → gf → fifa rank
   thirds.sort((a,b) =>
     b.pts-a.pts || b.gd-a.gd || b.gf-a.gf || a.rank-b.rank
   );
 
   const sfSlot = thirds.slice(0,8).find(t => t.isSFGroup);
-  const displayName = n => ({IvoryCoast:'Ivory Coast',SouthAfrica:'South Africa',
+
+  const dn = n => ({IvoryCoast:'Ivory Coast',SouthAfrica:'S. Africa',
     KoreaRepublic:'Korea Rep.',SaudiArabia:'Saudi Arabia',DRCongo:'DR Congo',
     NewZealand:'New Zealand',CapeVerde:'Cape Verde'}[n]||n);
 
@@ -769,60 +776,64 @@ function renderThirds(){
       <table style="width:100%;border-collapse:collapse;font-size:12px">
         <thead>
           <tr style="background:#0a1525;color:var(--dim);font-size:10px">
-            <th style="padding:8px 10px;text-align:left;font-weight:600">Pos</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:600">#</th>
             <th style="padding:8px 4px;text-align:left;font-weight:600">Team</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">P</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">W</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">D</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">L</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">GD</th>
-            <th style="padding:8px 6px;text-align:center;font-weight:600">Pts</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">P</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">W</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">D</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">L</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">GD</th>
+            <th style="padding:8px 5px;text-align:center;font-weight:600">Pts</th>
           </tr>
         </thead>
         <tbody>
           ${thirds.map((t,i) => {
             const inBest8 = i < 8;
             const isSF = sfSlot && t.name === sfSlot.name;
+            const showCutoff = i === 7;
             const rowBg = isSF ? '#0d2a12' : inBest8 ? '#0a1a2e' : 'transparent';
             const borderLeft = isSF ? '3px solid var(--green)' : t.isSFGroup && inBest8 ? '3px solid var(--gold)' : '3px solid transparent';
             const rankColor = i===0?'var(--gold)':i<3?'var(--silver)':i<8?'var(--accent)':'var(--muted)';
-            const gdColor = (t.gd||0)>0?'var(--green)':(t.gd||0)<0?'var(--red)':'var(--dim)';
-            return `<tr style="border-top:1px solid var(--border);background:${rowBg};border-left:${borderLeft}">
-              <td style="padding:9px 8px;color:${rankColor};font-weight:700">${i+1}</td>
-              <td style="padding:9px 4px">
-                <div style="display:flex;align-items:center;gap:5px">
-                  <span style="font-size:16px">${t.flag}</span>
-                  <div>
-                    <div style="font-weight:${inBest8?700:400};color:${inBest8?'var(--text)':'var(--dim)'}">${displayName(t.name)}</div>
-                    <div style="font-size:9px;color:var(--dim);display:flex;gap:3px;margin-top:1px">
-                      <span style="background:${t.isSFGroup?'var(--gold)22':'#1a2d4788'};color:${t.isSFGroup?'var(--gold)':'var(--dim)'};border-radius:3px;padding:0 4px">Grp ${t.group}</span>
-                      ${isSF?'<span style="background:#22c55e22;color:var(--green);border-radius:3px;padding:0 4px">→ SF vs USA</span>':''}
-                      ${inBest8&&!isSF?'<span style="background:#3b82f622;color:var(--accent);border-radius:3px;padding:0 4px">R32</span>':''}
+            const gdColor = t.gd>0?'var(--green)':t.gd<0?'var(--red)':'var(--dim)';
+            return `
+              ${showCutoff ? '<tr><td colspan="8" style="padding:2px 0;background:var(--accent);opacity:.4;font-size:8px;text-align:center;color:#fff;letter-spacing:2px">── QUALIFICATION LINE ──</td></tr>' : ''}
+              <tr style="border-top:1px solid var(--border);background:${rowBg};border-left:${borderLeft}">
+                <td style="padding:9px 6px;text-align:center;font-weight:700;color:${rankColor}">${i+1}</td>
+                <td style="padding:9px 4px">
+                  <div style="display:flex;align-items:center;gap:5px">
+                    <span style="font-size:16px">${t.flag}</span>
+                    <div>
+                      <div style="font-weight:${inBest8?700:400};color:${inBest8?'var(--text)':'var(--muted)'};font-size:12px">${dn(t.name)}</div>
+                      <div style="display:flex;gap:3px;margin-top:1px;flex-wrap:wrap">
+                        <span style="font-size:9px;background:${t.isSFGroup?'#f5c51822':'#1a2d4755'};color:${t.isSFGroup?'var(--gold)':'var(--dim)'};border-radius:3px;padding:0 4px">Grp ${t.group}</span>
+                        ${isSF?'<span style="font-size:9px;background:#22c55e22;color:var(--green);border-radius:3px;padding:0 4px">→ SF vs USA 🇺🇸</span>':''}
+                        ${inBest8&&!isSF?'<span style="font-size:9px;background:#3b82f622;color:var(--accent);border-radius:3px;padding:0 4px">R32 ✓</span>':''}
+                        ${!inBest8?'<span style="font-size:9px;background:#47556922;color:var(--muted);border-radius:3px;padding:0 4px">Eliminated</span>':''}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
-              <td style="padding:9px 6px;text-align:center;color:var(--dim)">${t.played||0}</td>
-              <td style="padding:9px 6px;text-align:center">${t.w||0}</td>
-              <td style="padding:9px 6px;text-align:center">${t.d||0}</td>
-              <td style="padding:9px 6px;text-align:center">${t.l||0}</td>
-              <td style="padding:9px 6px;text-align:center;color:${gdColor}">${(t.gd||0)>0?'+':''}${t.gd||0}</td>
-              <td style="padding:9px 6px;text-align:center;font-weight:800;color:${inBest8?'var(--text)':'var(--muted)'}">${t.pts||0}</td>
-            </tr>`;
+                </td>
+                <td style="padding:9px 5px;text-align:center;color:var(--dim)">${t.played}</td>
+                <td style="padding:9px 5px;text-align:center">${t.w}</td>
+                <td style="padding:9px 5px;text-align:center">${t.d}</td>
+                <td style="padding:9px 5px;text-align:center">${t.l}</td>
+                <td style="padding:9px 5px;text-align:center;font-weight:600;color:${gdColor}">${t.gd>0?'+':''}${t.gd}</td>
+                <td style="padding:9px 5px;text-align:center;font-weight:800;color:${inBest8?'var(--text)':'var(--muted)'}">${t.pts}</td>
+              </tr>`;
           }).join('')}
         </tbody>
       </table>
     </div>
-    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;font-size:10px">
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#22c55e;border-radius:2px;display:inline-block"></span> Plays USA in SF</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--gold);border-radius:2px;display:inline-block"></span> SF-eligible group</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--accent);border-radius:2px;display:inline-block"></span> Qualifies R32</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--muted);border-radius:2px;display:inline-block"></span> Eliminated</span>
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--dim)">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--green);border-radius:2px;display:inline-block"></span>Plays USA in SF</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--gold);border-radius:2px;display:inline-block"></span>SF-eligible group</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--accent);border-radius:2px;display:inline-block"></span>Qualifies R32</span>
     </div>
-    <div style="margin-top:8px;font-size:10px;color:var(--dim)">
-      Tiebreak: Points → Goal Difference → Goals Scored → FIFA Rank · Based on actual results only
+    <div style="margin-top:6px;font-size:10px;color:var(--dim)">
+      Tiebreak: Pts → GD → GF → FIFA Rank · Actual results only, no simulation
     </div>`;
 }
+
 
 function renderMatchList(){
   const el=document.getElementById('matchesList');
