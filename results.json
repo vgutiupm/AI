@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T18:55:35Z",
+  "updated": "2026-06-19T20:26:45Z",
   "results": [
     {
       "id": "r_A1",
@@ -309,11 +309,11 @@
       "id": "espn_760442",
       "home": "USA",
       "away": "Australia",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "61'",
+      "period": 2,
       "date": "2026-06-19",
       "group": "D"
     },
