@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T00:09:37Z",
+  "updated": "2026-06-19T01:50:26Z",
   "results": [
     {
       "id": "r_A1",
@@ -29,16 +29,6 @@
       "ag": 1,
       "status": "FT",
       "date": "2026-06-12"
-    },
-    {
-      "id": "r_B1",
-      "home": "Canada",
-      "away": "Bosnia",
-      "hg": 1,
-      "ag": 1,
-      "status": "FT",
-      "date": "2026-06-12",
-      "group": "B"
     },
     {
       "id": "r_D1",
@@ -118,26 +108,6 @@
       "group": "C"
     },
     {
-      "id": "r_E1",
-      "home": "Germany",
-      "away": "Curacao",
-      "hg": 7,
-      "ag": 1,
-      "status": "FT",
-      "date": "2026-06-14",
-      "group": "E"
-    },
-    {
-      "id": "r_F1",
-      "home": "Netherlands",
-      "away": "Japan",
-      "hg": 2,
-      "ag": 2,
-      "status": "FT",
-      "date": "2026-06-14",
-      "group": "F"
-    },
-    {
       "id": "k_F2",
       "home": "Sweden",
       "away": "Tunisia",
@@ -155,16 +125,6 @@
       "status": "FT",
       "date": "2026-06-15",
       "group": "E"
-    },
-    {
-      "id": "r_F2",
-      "home": "Sweden",
-      "away": "Tunisia",
-      "hg": 5,
-      "ag": 1,
-      "status": "FT",
-      "date": "2026-06-15",
-      "group": "F"
     },
     {
       "id": "r_G1",
@@ -216,16 +176,6 @@
       "group": "G"
     },
     {
-      "id": "r_I1",
-      "home": "France",
-      "away": "Senegal",
-      "hg": 3,
-      "ag": 1,
-      "status": "FT",
-      "date": "2026-06-16",
-      "group": "I"
-    },
-    {
       "id": "r_I2",
       "home": "Iraq",
       "away": "Norway",
@@ -266,6 +216,16 @@
       "group": "K"
     },
     {
+      "id": "r_K2",
+      "home": "Colombia",
+      "away": "Uzbekistan",
+      "hg": 3,
+      "ag": 1,
+      "status": "FT",
+      "date": "2026-06-17",
+      "group": "K"
+    },
+    {
       "id": "r_L1",
       "home": "England",
       "away": "Croatia",
@@ -286,14 +246,16 @@
       "group": "L"
     },
     {
-      "id": "r_K2",
-      "home": "Colombia",
-      "away": "Uzbekistan",
-      "hg": 3,
+      "id": "espn_760438",
+      "home": "Czechia",
+      "away": "SouthAfrica",
+      "hg": 1,
       "ag": 1,
       "status": "FT",
-      "date": "2026-06-17",
-      "group": "K"
+      "clock": "90'+7'",
+      "period": 2,
+      "date": "2026-06-18",
+      "group": "A"
     },
     {
       "id": "espn_760440",
@@ -306,6 +268,18 @@
       "period": 2,
       "date": "2026-06-18",
       "group": "B"
+    },
+    {
+      "id": "espn_760441",
+      "home": "Mexico",
+      "away": "KoreaRepublic",
+      "hg": 0,
+      "ag": 0,
+      "status": "LIVE",
+      "clock": "45'+4'",
+      "period": 1,
+      "date": "2026-06-19",
+      "group": "A"
     }
   ]
 }
