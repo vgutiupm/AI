@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T20:26:45Z",
+  "updated": "2026-06-19T21:46:13Z",
   "results": [
     {
       "id": "r_A1",
@@ -311,8 +311,8 @@
       "away": "Australia",
       "hg": 2,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "61'",
+      "status": "FT",
+      "clock": "90'+8'",
       "period": 2,
       "date": "2026-06-19",
       "group": "D"
