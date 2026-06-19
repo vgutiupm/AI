@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T22:10:29Z",
+  "updated": "2026-06-19T00:09:37Z",
   "results": [
     {
       "id": "r_A1",
@@ -299,11 +299,11 @@
       "id": "espn_760440",
       "home": "Canada",
       "away": "Qatar",
-      "hg": 0,
+      "hg": 6,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "9'",
-      "period": 1,
+      "status": "FT",
+      "clock": "90'+10'",
+      "period": 2,
       "date": "2026-06-18",
       "group": "B"
     }
