@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-19T21:46:13Z",
+  "updated": "2026-06-19T22:59:30Z",
   "results": [
     {
       "id": "r_A1",
@@ -298,10 +298,10 @@
       "home": "Scotland",
       "away": "Morocco",
       "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "ag": 1,
+      "status": "LIVE",
+      "clock": "45'+5'",
+      "period": 1,
       "date": "2026-06-19",
       "group": "C"
     },
