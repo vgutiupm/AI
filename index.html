@@ -385,21 +385,88 @@ function teamStrength(name) {
   return base * t.form * t.star * dyn;
 }
 
-function getDynForm(name) {
-  let pts=0,played=0;
-  Object.values(liveMatches).filter(m=>m.status==='FT').forEach(m=>{
-    if(m.home===name||m.away===name){
-      played++;
-      const isHome=m.home===name;
-      const gs=isHome?m.hg:m.ag, gc=isHome?m.ag:m.hg;
-      if(gs>gc)pts+=3; else if(gs===gc)pts+=1;
-    }
+// Pre-tournament Elo-equivalent rating derived from FIFA rank + Opta win%
+// (used as the baseline "expected strength" before any in-tournament results)
+function baselineElo(name){
+  const t = TEAMS[name]; if(!t) return 1500;
+  const rankScore = Math.max(.05, 1.2 - t.rank/90);
+  const optaScore = Math.sqrt(t.opta/16);
+  const composite = rankScore*.55 + optaScore*.45; // 0..~1.3
+  return 1300 + composite*500; // spread roughly 1350-1900
+}
+
+// Margin-of-victory multiplier (diminishing returns, capped)
+function movMultiplier(goalDiff){
+  const gd = Math.abs(goalDiff);
+  if(gd<=1) return 1.0;
+  return Math.min(1.75, 1 + Math.log(gd) * 0.45);
+}
+
+// Compute live Elo for every team based on actual FT results so far this tournament,
+// processed in chronological order, each match updating both teams' ratings.
+// This naturally captures: opponent strength, margin of victory, and recency
+// (later matches use the already-updated rating of the opponent).
+function computeLiveElo(){
+  const elo = {};
+  Object.keys(TEAMS).forEach(n => { elo[n] = baselineElo(n); });
+
+  const playedFT = Object.values(liveMatches)
+    .filter(m => m.status==='FT' && TEAMS[m.home] && TEAMS[m.away])
+    .sort((a,b) => new Date(a.date||0) - new Date(b.date||0));
+
+  const K = 70; // Elevated K-factor: group stage has only 3 matches, so each
+                // result needs to move the needle more than a 50+ game club season would
+  playedFT.forEach(m => {
+    const Rh = elo[m.home], Ra = elo[m.away];
+    const Eh = 1/(1+Math.pow(10,(Ra-Rh)/400)); // expected score for home
+    const Ea = 1 - Eh;
+    let Sh, Sa;
+    if(m.hg > m.ag){ Sh=1; Sa=0; }
+    else if(m.hg < m.ag){ Sh=0; Sa=1; }
+    else { Sh=0.5; Sa=0.5; }
+    const mov = movMultiplier(m.hg - m.ag);
+    elo[m.home] = Rh + K*mov*(Sh-Eh);
+    elo[m.away] = Ra + K*mov*(Sa-Ea);
   });
-  if(!played) return 1.0;
-  const ppg=pts/played;
-  const t=TEAMS[name];
-  const exp=(1.2-t.rank/100)*1.8;
-  return Math.max(.6, Math.min(1.5,(ppg+.5)/(exp+.5)*.85+.15));
+
+  return elo;
+}
+
+// Cache Elo computation per simulation batch (recomputed once per runSimulation call,
+// not once per simulated match, for performance)
+let _eloCache = null;
+function getLiveElo(){
+  if(!_eloCache) _eloCache = computeLiveElo();
+  return _eloCache;
+}
+function invalidateEloCache(){ _eloCache = null; }
+
+// getDynForm: converts the Elo delta (live rating vs baseline) into the same
+// multiplier scale the rest of the model expects (~0.6-1.5x), so a team that's
+// over-performing its pre-tournament expectation (beating strong teams,
+// winning big) gets boosted, and one under-performing (losing to weak teams,
+// getting blown out) gets penalized — properly weighted by opponent quality
+// and margin, not just raw points.
+function getDynForm(name) {
+  const t = TEAMS[name]; if(!t) return 1.0;
+  const elo = getLiveElo();
+  const base = baselineElo(name);
+  const live = elo[name] ?? base;
+  const delta = live - base; // typically -150..+150 after 1-3 matches
+
+  // Convert Elo delta to multiplier: 100 Elo ≈ 22% strength swing
+  // (calibrated so a single big win/loss meaningfully shifts simulated odds,
+  // since the tournament is short and recent form matters a lot)
+  let mult = 1 + (delta/100)*0.22;
+
+  // Fatigue/match-load penalty: teams that have played extra-time or
+  // high-intensity matches recently get a small downweight (proxy: matches played)
+  const played = Object.values(liveMatches).filter(m =>
+    m.status==='FT' && (m.home===name||m.away===name)
+  ).length;
+  const fatigue = played >= 3 ? 0.97 : 1.0; // slight dip for teams deep in schedule
+
+  return Math.max(.55, Math.min(1.6, mult * fatigue));
 }
 
 function poisson(lam){
@@ -458,6 +525,8 @@ function getSFOpponent(best8){
 }
 
 function runSimulation(n=6000){
+  invalidateEloCache(); // recompute live Elo fresh from current liveMatches
+  getLiveElo(); // warm the cache once before the loop (perf: avoid recomputing per-match)
   const wc={}, sfOppCount={};
   Object.keys(GROUPS).forEach(g=>GROUPS[g].forEach(t=>{wc[t]=0; sfOppCount[t]=0;}));
 
@@ -480,11 +549,14 @@ function runSimulation(n=6000){
 
   // Build per-group output (only show B/E/F/I/J in UI since those are relevant)
   const out={};
+  const liveEloSnapshot = getLiveElo();
   Object.keys(GROUPS).forEach(g=>{
     out[g]=GROUPS[g].map(t=>({
       name:t,...TEAMS[t],
       winPct:+((wc[t]||0)/n*100).toFixed(1),
       sfOppPct:+((sfOppCount[t]||0)/n*100).toFixed(1),
+      formAdj:+(getDynForm(t)).toFixed(2),
+      liveElo:Math.round(liveEloSnapshot[t]||baselineElo(t)),
     })).sort((a,b)=>b.winPct-a.winPct);
   });
   return out;
@@ -698,7 +770,7 @@ function renderSimGroups(){
               <span class="tile-flag">${t.flag}</span>
               <div>
                 <div class="tile-name">${t.name==='IvoryCoast'?'Ivory Coast':t.name}</div>
-                <div class="tile-star">⭐ ${t.starName}</div>
+                <div class="tile-star">⭐ ${t.starName} ${t.formAdj?(t.formAdj>1.05?'<span style="color:var(--green)">▲ in-form</span>':t.formAdj<0.95?'<span style="color:var(--red)">▼ off-form</span>':''):''}</div>
               </div>
             </div>
             <div class="pct-row"><span>Win group</span><span class="pct-val" style="color:var(--gold)">${t.winPct}%</span></div>
