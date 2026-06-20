@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T21:47:52Z",
+  "updated": "2026-06-20T23:10:23Z",
   "results": [
     {
       "id": "r_A1",
@@ -333,10 +333,10 @@
       "id": "espn_760448",
       "home": "Germany",
       "away": "IvoryCoast",
-      "hg": 1,
+      "hg": 2,
       "ag": 1,
-      "status": "LIVE",
-      "clock": "85'",
+      "status": "FT",
+      "clock": "90'+7'",
       "period": 2,
       "date": "2026-06-20",
       "group": "E"
