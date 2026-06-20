@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T15:46:02Z",
+  "updated": "2026-06-20T17:27:18Z",
   "results": [
     {
       "id": "r_A1",
@@ -345,11 +345,11 @@
       "id": "espn_760447",
       "home": "Netherlands",
       "away": "Sweden",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "27'",
+      "period": 1,
       "date": "2026-06-20",
       "group": "F"
     },
