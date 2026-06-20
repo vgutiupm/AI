@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T06:55:57Z",
+  "updated": "2026-06-20T15:46:02Z",
   "results": [
     {
       "id": "r_A1",
@@ -328,6 +328,42 @@
       "period": 2,
       "date": "2026-06-20",
       "group": "C"
+    },
+    {
+      "id": "espn_760448",
+      "home": "Germany",
+      "away": "IvoryCoast",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-20",
+      "group": "E"
+    },
+    {
+      "id": "espn_760447",
+      "home": "Netherlands",
+      "away": "Sweden",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-20",
+      "group": "F"
+    },
+    {
+      "id": "espn_760446",
+      "home": "Ecuador",
+      "away": "Curacao",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-21",
+      "group": "E"
     }
   ]
 }
