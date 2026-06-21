@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T15:52:59Z",
+  "updated": "2026-06-21T17:40:12Z",
   "results": [
     {
       "id": "r_A1",
@@ -393,11 +393,11 @@
       "id": "espn_760453",
       "home": "Spain",
       "away": "SaudiArabia",
-      "hg": 0,
+      "hg": 4,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "77'",
+      "period": 2,
       "date": "2026-06-21",
       "group": "H"
     },
