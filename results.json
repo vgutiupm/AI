@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T02:54:43Z",
+  "updated": "2026-06-21T07:28:13Z",
   "results": [
     {
       "id": "r_A1",
@@ -364,6 +364,66 @@
       "period": 2,
       "date": "2026-06-21",
       "group": "E"
+    },
+    {
+      "id": "espn_760449",
+      "home": "Tunisia",
+      "away": "Japan",
+      "hg": 0,
+      "ag": 4,
+      "status": "FT",
+      "clock": "90'+7'",
+      "period": 2,
+      "date": "2026-06-21",
+      "group": "F"
+    },
+    {
+      "id": "espn_760451",
+      "home": "Belgium",
+      "away": "Iran",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-21",
+      "group": "G"
+    },
+    {
+      "id": "espn_760453",
+      "home": "Spain",
+      "away": "SaudiArabia",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-21",
+      "group": "H"
+    },
+    {
+      "id": "espn_760450",
+      "home": "Uruguay",
+      "away": "CapeVerde",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-21",
+      "group": "H"
+    },
+    {
+      "id": "espn_760452",
+      "home": "NewZealand",
+      "away": "Egypt",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-22",
+      "group": "G"
     }
   ]
 }
