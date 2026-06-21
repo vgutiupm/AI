@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T23:10:23Z",
+  "updated": "2026-06-21T01:59:07Z",
   "results": [
     {
       "id": "r_A1",
@@ -359,9 +359,9 @@
       "away": "Curacao",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-21",
       "group": "E"
     }
