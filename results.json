@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T21:15:30Z",
+  "updated": "2026-06-21T22:43:50Z",
   "results": [
     {
       "id": "r_A1",
@@ -406,10 +406,10 @@
       "home": "Uruguay",
       "away": "CapeVerde",
       "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "ag": 1,
+      "status": "LIVE",
+      "clock": "43'",
+      "period": 1,
       "date": "2026-06-21",
       "group": "H"
     },
