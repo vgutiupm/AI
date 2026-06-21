@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T17:40:12Z",
+  "updated": "2026-06-21T19:43:31Z",
   "results": [
     {
       "id": "r_A1",
@@ -383,9 +383,9 @@
       "away": "Iran",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "43'",
+      "period": 1,
       "date": "2026-06-21",
       "group": "G"
     },
@@ -395,8 +395,8 @@
       "away": "SaudiArabia",
       "hg": 4,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "77'",
+      "status": "FT",
+      "clock": "90'+8'",
       "period": 2,
       "date": "2026-06-21",
       "group": "H"
