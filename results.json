@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T08:57:35Z",
+  "updated": "2026-06-22T18:12:48Z",
   "results": [
     {
       "id": "r_A1",
@@ -441,11 +441,11 @@
       "id": "espn_760456",
       "home": "Argentina",
       "away": "Austria",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "48'",
+      "period": 2,
       "date": "2026-06-22",
       "group": "J"
     },
