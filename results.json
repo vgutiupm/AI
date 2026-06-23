@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T18:23:35Z",
+  "updated": "2026-06-23T20:33:17Z",
   "results": [
     {
       "id": "r_A1",
@@ -477,10 +477,10 @@
       "id": "espn_760461",
       "home": "Portugal",
       "away": "Uzbekistan",
-      "hg": 3,
+      "hg": 5,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "59'",
+      "status": "FT",
+      "clock": "90'+6'",
       "period": 2,
       "date": "2026-06-23",
       "group": "K"
@@ -491,9 +491,9 @@
       "away": "Ghana",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "33'",
+      "period": 1,
       "date": "2026-06-23",
       "group": "L"
     },
