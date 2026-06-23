@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T02:32:31Z",
+  "updated": "2026-06-23T06:41:56Z",
   "results": [
     {
       "id": "r_A1",
@@ -465,11 +465,11 @@
       "id": "espn_760455",
       "home": "Jordan",
       "away": "Algeria",
-      "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "hg": 1,
+      "ag": 2,
+      "status": "FT",
+      "clock": "90'+8'",
+      "period": 2,
       "date": "2026-06-23",
       "group": "J"
     }
