@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T20:33:17Z",
+  "updated": "2026-06-23T22:14:46Z",
   "results": [
     {
       "id": "r_A1",
@@ -491,9 +491,9 @@
       "away": "Ghana",
       "hg": 0,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "33'",
-      "period": 1,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-23",
       "group": "L"
     },
