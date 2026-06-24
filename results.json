@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T21:53:53Z",
+  "updated": "2026-06-24T23:04:48Z",
   "results": [
     {
       "id": "r_A1",
@@ -537,11 +537,11 @@
       "id": "espn_760464",
       "home": "Morocco",
       "away": "Haiti",
-      "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "hg": 2,
+      "ag": 2,
+      "status": "LIVE",
+      "clock": "45'+5'",
+      "period": 1,
       "date": "2026-06-24",
       "group": "C"
     },
@@ -550,10 +550,10 @@
       "home": "Scotland",
       "away": "Brazil",
       "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "ag": 2,
+      "status": "LIVE",
+      "clock": "45'+7'",
+      "period": 1,
       "date": "2026-06-24",
       "group": "C"
     },
