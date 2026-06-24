@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T23:35:28Z",
+  "updated": "2026-06-24T02:33:09Z",
   "results": [
     {
       "id": "r_A1",
@@ -502,10 +502,10 @@
       "home": "Panama",
       "away": "Croatia",
       "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "35'",
-      "period": 1,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+5'",
+      "period": 2,
       "date": "2026-06-23",
       "group": "L"
     },
@@ -515,9 +515,9 @@
       "away": "DRCongo",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "33'",
+      "period": 1,
       "date": "2026-06-24",
       "group": "K"
     }
