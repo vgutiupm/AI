@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T06:38:26Z",
+  "updated": "2026-06-24T16:22:46Z",
   "results": [
     {
       "id": "r_A1",
@@ -510,6 +510,54 @@
       "group": "L"
     },
     {
+      "id": "espn_760462",
+      "home": "Bosnia",
+      "away": "Qatar",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-24",
+      "group": "B"
+    },
+    {
+      "id": "espn_760463",
+      "home": "Switzerland",
+      "away": "Canada",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-24",
+      "group": "B"
+    },
+    {
+      "id": "espn_760464",
+      "home": "Morocco",
+      "away": "Haiti",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-24",
+      "group": "C"
+    },
+    {
+      "id": "espn_760465",
+      "home": "Scotland",
+      "away": "Brazil",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-24",
+      "group": "C"
+    },
+    {
       "id": "espn_760459",
       "home": "Colombia",
       "away": "DRCongo",
@@ -520,6 +568,30 @@
       "period": 2,
       "date": "2026-06-24",
       "group": "K"
+    },
+    {
+      "id": "espn_760467",
+      "home": "Czechia",
+      "away": "Mexico",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "A"
+    },
+    {
+      "id": "espn_760466",
+      "home": "SouthAfrica",
+      "away": "KoreaRepublic",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "A"
     }
   ]
 }
