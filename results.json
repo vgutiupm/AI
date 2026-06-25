@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T02:34:56Z",
+  "updated": "2026-06-25T06:41:54Z",
   "results": [
     {
       "id": "r_A1",
@@ -574,9 +574,9 @@
       "home": "Czechia",
       "away": "Mexico",
       "hg": 0,
-      "ag": 2,
-      "status": "LIVE",
-      "clock": "74'",
+      "ag": 3,
+      "status": "FT",
+      "clock": "90'+6'",
       "period": 2,
       "date": "2026-06-25",
       "group": "A"
@@ -587,8 +587,8 @@
       "away": "KoreaRepublic",
       "hg": 1,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "73'",
+      "status": "FT",
+      "clock": "90'+6'",
       "period": 2,
       "date": "2026-06-25",
       "group": "A"
