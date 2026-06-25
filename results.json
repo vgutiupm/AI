@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T06:41:54Z",
+  "updated": "2026-06-25T16:26:20Z",
   "results": [
     {
       "id": "r_A1",
@@ -592,6 +592,66 @@
       "period": 2,
       "date": "2026-06-25",
       "group": "A"
+    },
+    {
+      "id": "espn_760473",
+      "home": "Curacao",
+      "away": "IvoryCoast",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "E"
+    },
+    {
+      "id": "espn_760468",
+      "home": "Ecuador",
+      "away": "Germany",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "E"
+    },
+    {
+      "id": "espn_760471",
+      "home": "Japan",
+      "away": "Sweden",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "F"
+    },
+    {
+      "id": "espn_760472",
+      "home": "Tunisia",
+      "away": "Netherlands",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-25",
+      "group": "F"
+    },
+    {
+      "id": "espn_760469",
+      "home": "Paraguay",
+      "away": "Australia",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-26",
+      "group": "D"
     }
   ]
 }
