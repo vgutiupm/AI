@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T23:04:48Z",
+  "updated": "2026-06-25T01:31:38Z",
   "results": [
     {
       "id": "r_A1",
@@ -537,11 +537,11 @@
       "id": "espn_760464",
       "home": "Morocco",
       "away": "Haiti",
-      "hg": 2,
+      "hg": 4,
       "ag": 2,
-      "status": "LIVE",
-      "clock": "45'+5'",
-      "period": 1,
+      "status": "FT",
+      "clock": "90'+9'",
+      "period": 2,
       "date": "2026-06-24",
       "group": "C"
     },
@@ -550,10 +550,10 @@
       "home": "Scotland",
       "away": "Brazil",
       "hg": 0,
-      "ag": 2,
-      "status": "LIVE",
-      "clock": "45'+7'",
-      "period": 1,
+      "ag": 3,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-24",
       "group": "C"
     },
@@ -575,9 +575,9 @@
       "away": "Mexico",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "31'",
+      "period": 1,
       "date": "2026-06-25",
       "group": "A"
     },
@@ -587,9 +587,9 @@
       "away": "KoreaRepublic",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "31'",
+      "period": 1,
       "date": "2026-06-25",
       "group": "A"
     }
