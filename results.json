@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T01:31:38Z",
+  "updated": "2026-06-25T02:34:56Z",
   "results": [
     {
       "id": "r_A1",
@@ -574,10 +574,10 @@
       "home": "Czechia",
       "away": "Mexico",
       "hg": 0,
-      "ag": 0,
+      "ag": 2,
       "status": "LIVE",
-      "clock": "31'",
-      "period": 1,
+      "clock": "74'",
+      "period": 2,
       "date": "2026-06-25",
       "group": "A"
     },
@@ -585,11 +585,11 @@
       "id": "espn_760466",
       "home": "SouthAfrica",
       "away": "KoreaRepublic",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
       "status": "LIVE",
-      "clock": "31'",
-      "period": 1,
+      "clock": "73'",
+      "period": 2,
       "date": "2026-06-25",
       "group": "A"
     }
