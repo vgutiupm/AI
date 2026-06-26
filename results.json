@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26T20:17:42Z",
+  "updated": "2026-06-26T21:47:31Z",
   "results": [
     {
       "id": "r_A1",
@@ -658,9 +658,9 @@
       "home": "Norway",
       "away": "France",
       "hg": 1,
-      "ag": 3,
-      "status": "LIVE",
-      "clock": "54'",
+      "ag": 4,
+      "status": "FT",
+      "clock": "90'+5'",
       "period": 2,
       "date": "2026-06-26",
       "group": "I"
@@ -669,10 +669,10 @@
       "id": "espn_760474",
       "home": "Senegal",
       "away": "Iraq",
-      "hg": 1,
+      "hg": 5,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "50'",
+      "status": "FT",
+      "clock": "90'+6'",
       "period": 2,
       "date": "2026-06-26",
       "group": "I"
