@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T02:30:11Z",
+  "updated": "2026-06-27T06:24:37Z",
   "results": [
     {
       "id": "r_A1",
@@ -681,11 +681,11 @@
       "id": "espn_760476",
       "home": "Egypt",
       "away": "Iran",
-      "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "hg": 1,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+9'",
+      "period": 2,
       "date": "2026-06-27",
       "group": "G"
     },
@@ -693,11 +693,11 @@
       "id": "espn_760477",
       "home": "NewZealand",
       "away": "Belgium",
-      "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "hg": 1,
+      "ag": 5,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-27",
       "group": "G"
     },
