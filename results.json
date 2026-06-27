@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T01:28:26Z",
+  "updated": "2026-06-27T02:30:11Z",
   "results": [
     {
       "id": "r_A1",
@@ -707,8 +707,8 @@
       "away": "SaudiArabia",
       "hg": 0,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "64'",
+      "status": "FT",
+      "clock": "90'+5'",
       "period": 2,
       "date": "2026-06-27",
       "group": "H"
@@ -719,8 +719,8 @@
       "away": "Spain",
       "hg": 0,
       "ag": 1,
-      "status": "LIVE",
-      "clock": "64'",
+      "status": "FT",
+      "clock": "90'+6'",
       "period": 2,
       "date": "2026-06-27",
       "group": "H"
