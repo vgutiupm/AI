@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T21:04:52Z",
+  "updated": "2026-06-27T22:36:35Z",
   "results": [
     {
       "id": "r_A1",
@@ -753,11 +753,11 @@
       "id": "espn_760480",
       "home": "Croatia",
       "away": "Ghana",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
       "status": "LIVE",
-      "clock": "3'",
-      "period": 1,
+      "clock": "75'",
+      "period": 2,
       "date": "2026-06-27",
       "group": "L"
     },
@@ -766,10 +766,10 @@
       "home": "Panama",
       "away": "England",
       "hg": 0,
-      "ag": 0,
+      "ag": 2,
       "status": "LIVE",
-      "clock": "4'",
-      "period": 1,
+      "clock": "77'",
+      "period": 2,
       "date": "2026-06-27",
       "group": "L"
     },
