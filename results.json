@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T19:53:05Z",
+  "updated": "2026-06-27T21:04:52Z",
   "results": [
     {
       "id": "r_A1",
@@ -755,9 +755,9 @@
       "away": "Ghana",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "3'",
+      "period": 1,
       "date": "2026-06-27",
       "group": "L"
     },
@@ -767,9 +767,9 @@
       "away": "England",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "4'",
+      "period": 1,
       "date": "2026-06-27",
       "group": "L"
     },
