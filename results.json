@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-28T02:42:57Z",
+  "updated": "2026-06-28T06:57:00Z",
   "results": [
     {
       "id": "r_A1",
@@ -777,11 +777,11 @@
       "id": "espn_760484",
       "home": "Algeria",
       "away": "Austria",
-      "hg": 0,
-      "ag": 1,
-      "status": "LIVE",
-      "clock": "42'",
-      "period": 1,
+      "hg": 3,
+      "ag": 3,
+      "status": "FT",
+      "clock": "90'+7'",
+      "period": 2,
       "date": "2026-06-28",
       "group": "J"
     },
@@ -789,11 +789,11 @@
       "id": "espn_760483",
       "home": "Jordan",
       "away": "Argentina",
-      "hg": 0,
-      "ag": 2,
-      "status": "LIVE",
-      "clock": "42'",
-      "period": 1,
+      "hg": 1,
+      "ag": 3,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-28",
       "group": "J"
     }
