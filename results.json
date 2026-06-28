@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-28T06:57:00Z",
+  "updated": "2026-06-28T15:18:26Z",
   "results": [
     {
       "id": "r_A1",
@@ -772,6 +772,18 @@
       "period": 2,
       "date": "2026-06-27",
       "group": "L"
+    },
+    {
+      "id": "espn_760486",
+      "home": "SouthAfrica",
+      "away": "Canada",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-06-28",
+      "group": "A"
     },
     {
       "id": "espn_760484",
