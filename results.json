@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-28T19:54:15Z",
+  "updated": "2026-06-28T21:02:51Z",
   "results": [
     {
       "id": "r_A1",
@@ -778,10 +778,10 @@
       "home": "SouthAfrica",
       "away": "Canada",
       "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "45'+3'",
-      "period": 1,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+6'",
+      "period": 2,
       "date": "2026-06-28",
       "group": "A"
     },
