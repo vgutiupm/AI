@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-28T18:05:48Z",
+  "updated": "2026-06-28T19:54:15Z",
   "results": [
     {
       "id": "r_A1",
@@ -779,9 +779,9 @@
       "away": "Canada",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "45'+3'",
+      "period": 1,
       "date": "2026-06-28",
       "group": "A"
     },
