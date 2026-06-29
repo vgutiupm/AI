@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T19:04:59Z",
+  "updated": "2026-06-29T21:08:22Z",
   "results": [
     {
       "id": "r_A1",
@@ -827,9 +827,9 @@
       "away": "Paraguay",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "38'",
+      "period": 1,
       "date": "2026-06-29",
       "group": "E"
     },
