@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T21:08:22Z",
+  "updated": "2026-06-29T22:37:04Z",
   "results": [
     {
       "id": "r_A1",
@@ -825,11 +825,11 @@
       "id": "espn_760489",
       "home": "Germany",
       "away": "Paraguay",
-      "hg": 0,
-      "ag": 0,
+      "hg": 1,
+      "ag": 1,
       "status": "LIVE",
-      "clock": "38'",
-      "period": 1,
+      "clock": "94'",
+      "period": 3,
       "date": "2026-06-29",
       "group": "E"
     },
