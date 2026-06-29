@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T16:53:23Z",
+  "updated": "2026-06-29T19:04:59Z",
   "results": [
     {
       "id": "r_A1",
@@ -813,11 +813,11 @@
       "id": "espn_760487",
       "home": "Brazil",
       "away": "Japan",
-      "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "hg": 2,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+11'",
+      "period": 2,
       "date": "2026-06-29",
       "group": "C"
     },
