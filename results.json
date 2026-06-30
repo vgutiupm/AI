@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T16:23:40Z",
+  "updated": "2026-06-30T18:19:09Z",
   "results": [
     {
       "id": "r_A1",
@@ -838,10 +838,10 @@
       "home": "IvoryCoast",
       "away": "Norway",
       "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "ag": 1,
+      "status": "LIVE",
+      "clock": "59'",
+      "period": 2,
       "date": "2026-06-30",
       "group": "E"
     },
