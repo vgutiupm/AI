@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T00:05:07Z",
+  "updated": "2026-06-30T02:37:55Z",
   "results": [
     {
       "id": "r_A1",
@@ -837,11 +837,11 @@
       "id": "espn_760488",
       "home": "Netherlands",
       "away": "Morocco",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "76'",
+      "period": 2,
       "date": "2026-06-30",
       "group": "F"
     }
