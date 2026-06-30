@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T02:37:55Z",
+  "updated": "2026-06-30T06:50:33Z",
   "results": [
     {
       "id": "r_A1",
@@ -838,10 +838,10 @@
       "home": "Netherlands",
       "away": "Morocco",
       "hg": 1,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "76'",
-      "period": 2,
+      "ag": 1,
+      "status": "FT",
+      "clock": "120'",
+      "period": 5,
       "date": "2026-06-30",
       "group": "F"
     }
