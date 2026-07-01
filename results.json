@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T02:43:37Z",
+  "updated": "2026-07-01T07:05:47Z",
   "results": [
     {
       "id": "r_A1",
@@ -875,9 +875,9 @@
       "away": "Ecuador",
       "hg": 2,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "42'",
-      "period": 1,
+      "status": "FT",
+      "clock": "90'+9'",
+      "period": 2,
       "date": "2026-07-01",
       "group": "A"
     }
