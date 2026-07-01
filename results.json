@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T23:44:43Z",
+  "updated": "2026-07-01T02:43:37Z",
   "results": [
     {
       "id": "r_A1",
@@ -873,11 +873,11 @@
       "id": "espn_760491",
       "home": "Mexico",
       "away": "Ecuador",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "42'",
+      "period": 1,
       "date": "2026-07-01",
       "group": "A"
     }
