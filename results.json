@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T23:51:27Z",
+  "updated": "2026-07-02T02:33:27Z",
   "results": [
     {
       "id": "r_A1",
@@ -909,11 +909,11 @@
       "id": "espn_760494",
       "home": "USA",
       "away": "Bosnia",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "FT",
+      "clock": "90'+10'",
+      "period": 2,
       "date": "2026-07-02",
       "group": "D"
     }
