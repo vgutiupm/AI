@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T23:08:34Z",
+  "updated": "2026-07-03T01:10:01Z",
   "results": [
     {
       "id": "r_A1",
@@ -933,11 +933,11 @@
       "id": "espn_760496",
       "home": "Portugal",
       "away": "Croatia",
-      "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "9'",
-      "period": 1,
+      "hg": 2,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+19'",
+      "period": 2,
       "date": "2026-07-02",
       "group": "K"
     },
