@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T02:08:33Z",
+  "updated": "2026-07-03T06:06:59Z",
   "results": [
     {
       "id": "r_A1",
@@ -945,11 +945,11 @@
       "id": "espn_760498",
       "home": "Switzerland",
       "away": "Algeria",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "FT",
+      "clock": "90'+7'",
+      "period": 2,
       "date": "2026-07-03",
       "group": "B"
     }
