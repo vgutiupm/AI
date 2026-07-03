@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T21:40:22Z",
+  "updated": "2026-07-03T23:05:29Z",
   "results": [
     {
       "id": "r_A1",
@@ -969,11 +969,11 @@
       "id": "espn_760500",
       "home": "Argentina",
       "away": "CapeVerde",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "45'+4'",
+      "period": 1,
       "date": "2026-07-03",
       "group": "J"
     },
