@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T20:14:51Z",
+  "updated": "2026-07-03T21:40:22Z",
   "results": [
     {
       "id": "r_A1",
@@ -959,9 +959,9 @@
       "away": "Egypt",
       "hg": 1,
       "ag": 1,
-      "status": "LIVE",
-      "clock": "101'",
-      "period": 3,
+      "status": "FT",
+      "clock": "120'",
+      "period": 5,
       "date": "2026-07-03",
       "group": "D"
     },
