@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T01:08:31Z",
+  "updated": "2026-07-04T02:07:07Z",
   "results": [
     {
       "id": "r_A1",
@@ -981,11 +981,11 @@
       "id": "espn_760501",
       "home": "Colombia",
       "away": "Ghana",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "36'",
+      "period": 1,
       "date": "2026-07-04",
       "group": "K"
     }
