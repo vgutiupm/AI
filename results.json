@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T22:05:59Z",
+  "updated": "2026-07-04T23:31:35Z",
   "results": [
     {
       "id": "r_A1",
@@ -994,10 +994,10 @@
       "home": "Paraguay",
       "away": "France",
       "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "45'+3'",
-      "period": 1,
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+11'",
+      "period": 2,
       "date": "2026-07-04",
       "group": "D"
     },
