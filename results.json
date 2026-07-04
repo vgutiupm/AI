@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T18:01:54Z",
+  "updated": "2026-07-04T19:44:46Z",
   "results": [
     {
       "id": "r_A1",
@@ -982,10 +982,10 @@
       "home": "Canada",
       "away": "Morocco",
       "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "45'+6'",
-      "period": 1,
+      "ag": 3,
+      "status": "FT",
+      "clock": "90'+9'",
+      "period": 2,
       "date": "2026-07-04",
       "group": "B"
     },
