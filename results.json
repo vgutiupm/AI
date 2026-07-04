@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T16:31:51Z",
+  "updated": "2026-07-04T18:01:54Z",
   "results": [
     {
       "id": "r_A1",
@@ -983,9 +983,9 @@
       "away": "Morocco",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "45'+6'",
+      "period": 1,
       "date": "2026-07-04",
       "group": "B"
     },
