@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T21:01:54Z",
+  "updated": "2026-07-05T22:30:34Z",
   "results": [
     {
       "id": "r_A1",
@@ -1017,11 +1017,11 @@
       "id": "espn_760504",
       "home": "Brazil",
       "away": "Norway",
-      "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "45'+6'",
-      "period": 1,
+      "hg": 1,
+      "ag": 2,
+      "status": "FT",
+      "clock": "90'+11'",
+      "period": 2,
       "date": "2026-07-05",
       "group": "C"
     },
