@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-06T20:53:21Z",
+  "updated": "2026-07-06T22:14:27Z",
   "results": [
     {
       "id": "r_A1",
@@ -1042,9 +1042,9 @@
       "home": "Portugal",
       "away": "Spain",
       "hg": 0,
-      "ag": 0,
-      "status": "LIVE",
-      "clock": "90'",
+      "ag": 1,
+      "status": "FT",
+      "clock": "90'+9'",
       "period": 2,
       "date": "2026-07-06",
       "group": "K"
