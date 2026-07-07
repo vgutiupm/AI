@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T16:32:24Z",
+  "updated": "2026-07-07T19:03:23Z",
   "results": [
     {
       "id": "r_A1",
@@ -1077,11 +1077,11 @@
       "id": "espn_760509",
       "home": "Argentina",
       "away": "Egypt",
-      "hg": 0,
-      "ag": 1,
-      "status": "LIVE",
-      "clock": "31'",
-      "period": 1,
+      "hg": 3,
+      "ag": 2,
+      "status": "FT",
+      "clock": "90'+11'",
+      "period": 2,
       "date": "2026-07-07",
       "group": "J"
     }
