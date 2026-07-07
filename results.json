@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T19:03:23Z",
+  "updated": "2026-07-07T21:05:44Z",
   "results": [
     {
       "id": "r_A1",
@@ -1055,9 +1055,9 @@
       "away": "Colombia",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "46'",
+      "period": 2,
       "date": "2026-07-07",
       "group": "B"
     },
