@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-08T01:56:00Z",
+  "updated": "2026-07-08T05:17:03Z",
   "results": [
     {
       "id": "r_A1",
@@ -1084,6 +1084,18 @@
       "period": 2,
       "date": "2026-07-07",
       "group": "J"
+    },
+    {
+      "id": "espn_760510",
+      "home": "France",
+      "away": "Morocco",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-07-09",
+      "group": "I"
     }
   ]
 }
