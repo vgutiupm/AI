@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09T20:19:42Z",
+  "updated": "2026-07-09T21:57:51Z",
   "results": [
     {
       "id": "r_A1",
@@ -1089,11 +1089,11 @@
       "id": "espn_760510",
       "home": "France",
       "away": "Morocco",
-      "hg": 0,
+      "hg": 2,
       "ag": 0,
       "status": "LIVE",
-      "clock": "18'",
-      "period": 1,
+      "clock": "90'+3'",
+      "period": 2,
       "date": "2026-07-09",
       "group": "I"
     }
