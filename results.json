@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T04:57:38Z",
+  "updated": "2026-07-11T14:54:47Z",
   "results": [
     {
       "id": "r_A1",
@@ -1108,6 +1108,30 @@
       "period": 2,
       "date": "2026-07-10",
       "group": "H"
+    },
+    {
+      "id": "espn_760512",
+      "home": "Norway",
+      "away": "England",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-07-11",
+      "group": "I"
+    },
+    {
+      "id": "espn_760513",
+      "home": "Argentina",
+      "away": "Switzerland",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-07-12",
+      "group": "J"
     }
   ]
 }
