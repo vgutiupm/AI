@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-14T18:03:57Z",
+  "updated": "2026-07-14T19:51:37Z",
   "results": [
     {
       "id": "r_A1",
@@ -1138,10 +1138,10 @@
       "home": "France",
       "away": "Spain",
       "hg": 0,
-      "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "ag": 1,
+      "status": "LIVE",
+      "clock": "45'+6'",
+      "period": 1,
       "date": "2026-07-14",
       "group": "I"
     }
