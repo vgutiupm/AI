@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T18:08:32Z",
+  "updated": "2026-07-15T19:45:29Z",
   "results": [
     {
       "id": "r_A1",
@@ -1151,9 +1151,9 @@
       "away": "Argentina",
       "hg": 0,
       "ag": 0,
-      "status": "PRE",
-      "clock": "0'",
-      "period": 0,
+      "status": "LIVE",
+      "clock": "45'",
+      "period": 1,
       "date": "2026-07-15",
       "group": "L"
     }
