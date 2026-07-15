@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T04:43:48Z",
+  "updated": "2026-07-15T15:26:55Z",
   "results": [
     {
       "id": "r_A1",
@@ -1144,6 +1144,18 @@
       "period": 2,
       "date": "2026-07-14",
       "group": "I"
+    },
+    {
+      "id": "espn_760515",
+      "home": "England",
+      "away": "Argentina",
+      "hg": 0,
+      "ag": 0,
+      "status": "PRE",
+      "clock": "0'",
+      "period": 0,
+      "date": "2026-07-15",
+      "group": "L"
     }
   ]
 }
