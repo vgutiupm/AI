@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T22:51:04Z",
+  "updated": "2026-07-18T23:54:47Z",
   "results": [
     {
       "id": "r_A1",
@@ -1161,10 +1161,10 @@
       "id": "espn_760516",
       "home": "France",
       "away": "England",
-      "hg": 3,
-      "ag": 5,
-      "status": "LIVE",
-      "clock": "88'",
+      "hg": 4,
+      "ag": 6,
+      "status": "FT",
+      "clock": "90'+9'",
       "period": 2,
       "date": "2026-07-18",
       "group": "I"
