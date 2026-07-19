@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-19T19:07:59Z",
+  "updated": "2026-07-19T20:22:54Z",
   "results": [
     {
       "id": "r_A1",
@@ -1176,7 +1176,7 @@
       "hg": 0,
       "ag": 0,
       "status": "LIVE",
-      "clock": "2'",
+      "clock": "45'+4'",
       "period": 1,
       "date": "2026-07-19",
       "group": "H"
