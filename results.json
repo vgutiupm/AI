@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-19T21:24:56Z",
+  "updated": "2026-07-19T22:26:29Z",
   "results": [
     {
       "id": "r_A1",
@@ -1173,11 +1173,11 @@
       "id": "espn_760517",
       "home": "Spain",
       "away": "Argentina",
-      "hg": 0,
+      "hg": 1,
       "ag": 0,
-      "status": "LIVE",
-      "clock": "94'",
-      "period": 3,
+      "status": "FT",
+      "clock": "120'+5'",
+      "period": 4,
       "date": "2026-07-19",
       "group": "H"
     }
